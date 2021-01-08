@@ -3,13 +3,14 @@
 #include <iostream>
 #include <filesystem>
 
+#include <engine/camera.h>
+#include <engine/resource-manager.h>
+#include <engine/renderer.h>
+#include <engine/game-object.h>
+#include <engine/ball-object.h>
+#include <engine/text-renderer.h>
+
 #include "game.h"
-#include "camera.h"
-#include "resource-manager.h"
-#include "renderer.h"
-#include "game-object.h"
-#include "ball-object.h"
-#include "text-renderer.h"
 #include "player.h"
 #include "tournament.h"
 

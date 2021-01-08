@@ -1,20 +1,12 @@
 sources = [
     'main.cpp',
-    'ball-object.cpp',
-    'camera.cpp',
     'game.cpp',
-    'game-object.cpp',
-    'mesh.cpp',
-    'model.cpp',
-    'renderer.cpp',
-    'resource-manager.cpp',
-    'shader.cpp',
-    'text-renderer.cpp',
     'tournament.cpp',
     'player.cpp',
     'match.cpp',
-    'glad.c',
 ]
+
+subdir('engine')
 
 add_project_arguments('-lglfw -lGL -lX11 -lpthread -lXrandr -lXi -ldl -lassimp', language : 'cpp')
 add_project_arguments('-std=c++17', language : 'cpp')

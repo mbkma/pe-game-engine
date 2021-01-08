@@ -1,10 +1,11 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "game.h"
-#include "resource-manager.h"
-
 #include <iostream>
+
+#include <engine/resource-manager.h>
+#include "game.h"
+
 
 // GLFW function declarations
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
