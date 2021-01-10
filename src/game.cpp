@@ -7,6 +7,7 @@
 #include <engine/resource-manager.h>
 #include <engine/renderer.h>
 #include <engine/game-object.h>
+#include <engine/player-object.h>
 #include <engine/ball-object.h>
 #include <engine/text-renderer.h>
 
@@ -19,8 +20,9 @@ using namespace std;
 // Game-related State data
 Renderer          *Rend;
 Camera            *camera;
-GameObject        *Box;
+PlayerObject      *PlayerO;
 GameObject        *Court;
+GameObject        *Stadium;
 BallObject        *Ball;
 TextRenderer      *Text;
 std::vector<Player> Players;
@@ -50,6 +52,7 @@ void Game::Init()
     // TODO
 
     // load models
+    ResourceManager::LoadModel(filesystem::path("../src/models/stadium/stadium.obj").c_str(), true, "stadium");
     ResourceManager::LoadModel(filesystem::path("../src/models/court/court.obj").c_str(), true, "court");
     ResourceManager::LoadModel(filesystem::path("../src/models/ball/ball.obj").c_str(), true, "ball");
     ResourceManager::LoadModel(filesystem::path("../src/models/box/box.obj").c_str(), true, "box");
@@ -69,12 +72,15 @@ void Game::Init()
     glm::vec3 boxPos = glm::vec3(-11.0f, 1.0f, 0.0f);
     Ball = new BallObject(ballPos, ResourceManager::GetModel("ball"), BALL_RADIUS, INITIAL_BALL_VELOCITY);
     Court = new GameObject(courtPos, ResourceManager::GetModel("court"));
-    Box = new GameObject(boxPos, ResourceManager::GetModel("box"), 0.2f);
+    Stadium = new GameObject(courtPos, ResourceManager::GetModel("stadium"));
+
     file1.open("file1.dat");
     file2.open("file2.dat");
 
     // fill player list
     FillPlayerList();
+
+    PlayerO = new PlayerObject(Players[0], boxPos, ResourceManager::GetModel("box"), 0.2f);
 
     Tournament *t = new Tournament("ATP", Players);
 }
@@ -143,13 +149,13 @@ void Game::ProcessInput(float dt)
     if (this->State == GAME_ACTIVE)
     {
         if (this->Keys[GLFW_KEY_W])
-            camera->ProcessKeyboard(UP, dt);
+            PlayerO->ProcessKeyboard(UP, dt);
         if (this->Keys[GLFW_KEY_S])
-            camera->ProcessKeyboard(DOWN, dt);
+            PlayerO->ProcessKeyboard(DOWN, dt);
         if (this->Keys[GLFW_KEY_A])
-            camera->ProcessKeyboard(LEFT, dt);
+            PlayerO->ProcessKeyboard(LEFT, dt);
         if (this->Keys[GLFW_KEY_D])
-            camera->ProcessKeyboard(RIGHT, dt);
+            PlayerO->ProcessKeyboard(RIGHT, dt);
     }
 }
 
@@ -159,7 +165,8 @@ void Game::Render()
     {
         Ball->Draw(*Rend);
         Court->Draw(*Rend);
-        Box->Draw(*Rend);
+        PlayerO->Draw(*Rend);
+        Stadium->Draw(*Rend);
     }
 
     if (this->State == GAME_MENU)
@@ -167,6 +174,7 @@ void Game::Render()
         Text->RenderText("Press ENTER to start", 250.0f, this->Height / 2.0f, 1.0f, glm::vec3(0.9f, 0.5f, 0.0f));
         Text->RenderText("Press ESC to exit", 245.0f, this->Height / 2.0f + 20.0f, 0.75f);
         Court->Draw(*Rend);
+        Stadium->Draw(*Rend);
     }
 
     if (this->State == GAME_WIN)
