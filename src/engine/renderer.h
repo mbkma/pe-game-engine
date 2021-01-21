@@ -18,7 +18,7 @@ public:
     // Destructor
     ~Renderer();
     // Renders a defined model
-    void Draw(Model &item, glm::vec3 position, float size = 1.0f, float rotate = 0.0f);
+    void Draw(Model &item, glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), float size = 1.0f, float rotate = 0.0f);
 private:
     Shader       shader;
     Camera       *camera;

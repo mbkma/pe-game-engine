@@ -18,7 +18,8 @@
 using namespace std;
 
 // Game-related State data
-Renderer          *Rend;
+Renderer          *DefaultRenderer;
+Renderer          *AnimationRenderer;
 Camera            *camera;
 PlayerObject      *PlayerO;
 GameObject        *Court;
@@ -26,9 +27,6 @@ GameObject        *Stadium;
 BallObject        *Ball;
 TextRenderer      *Text;
 std::vector<Player> Players;
-
-std::ofstream file1;
-std::ofstream file2;
 
 Game::Game(unsigned int width, unsigned int height)
     : State(GAME_MENU), Keys(), KeysProcessed(), Width(width), Height(height)
@@ -38,7 +36,12 @@ Game::Game(unsigned int width, unsigned int height)
 
 Game::~Game()
 {
-    delete Rend;
+    delete DefaultRenderer;
+    delete AnimationRenderer;
+    delete camera;
+    delete PlayerO;
+    delete Court;
+    delete Stadium;
     delete Ball;
     delete Text;
 }
@@ -47,6 +50,7 @@ void Game::Init()
 {
     // load shaders
     ResourceManager::LoadShader("../src/shaders/default.vs", "../src/shaders/default.fs", nullptr, "default");
+    ResourceManager::LoadShader("../src/shaders/animation.vs", "../src/shaders/default.fs", nullptr, "animation");
 
     // configure shaders
     // TODO
@@ -55,34 +59,33 @@ void Game::Init()
     ResourceManager::LoadModel(filesystem::path("../src/models/stadium/stadium.obj").c_str(), true, "stadium");
     ResourceManager::LoadModel(filesystem::path("../src/models/court/court.obj").c_str(), true, "court");
     ResourceManager::LoadModel(filesystem::path("../src/models/ball/ball.obj").c_str(), true, "ball");
-    ResourceManager::LoadModel(filesystem::path("../src/models/box/box.obj").c_str(), true, "box");
+    ResourceManager::LoadModel(filesystem::path("../src/models/player/player.dae").c_str(), true, "player");
 
     // set camera
-    camera = new Camera();
+    camera = new Camera(glm::vec3(-20.0f, 6.0f, 0.0f));
 
     // set render-specific controls
     Shader default_shader = ResourceManager::GetShader("default");
-    Rend = new Renderer(default_shader, camera);
+    Shader animation_shader = ResourceManager::GetShader("animation");
+    DefaultRenderer = new Renderer(default_shader, camera);
+    AnimationRenderer = new Renderer(animation_shader, camera);
     Text = new TextRenderer(this->Width, this->Height);
     Text->Load(filesystem::path("../src/fonts/OCRAEXT.TTF").c_str(), 24);
 
     // configure game objects
     glm::vec3 ballPos = glm::vec3(10.0f, 5.0f, 0.0f);
     glm::vec3 courtPos = glm::vec3(0.0f, 0.0f, 0.0f);
-    glm::vec3 boxPos = glm::vec3(-11.0f, 1.0f, 0.0f);
-    Ball = new BallObject(ballPos, ResourceManager::GetModel("ball"), BALL_RADIUS, INITIAL_BALL_VELOCITY);
-    Court = new GameObject(courtPos, ResourceManager::GetModel("court"));
-    Stadium = new GameObject(courtPos, ResourceManager::GetModel("stadium"));
-
-    file1.open("file1.dat");
-    file2.open("file2.dat");
+    glm::vec3 playerPos = glm::vec3(-11.0f, 0.0f, 0.0f);
+    Ball = new BallObject(ballPos, *ResourceManager::GetModel("ball"), BALL_RADIUS, INITIAL_BALL_VELOCITY);
+    Court = new GameObject(courtPos, *ResourceManager::GetModel("court"));
+    Stadium = new GameObject(courtPos, *ResourceManager::GetModel("stadium"));
 
     // fill player list
     FillPlayerList();
 
-    PlayerO = new PlayerObject(Players[0], boxPos, ResourceManager::GetModel("box"), 0.2f);
+    PlayerO = new PlayerObject(Players[0], playerPos, *ResourceManager::GetModel("player"), 0.22f);
 
-    Tournament *t = new Tournament("ATP", Players);
+//    Tournament *t = new Tournament("ATP", Players);
 }
 
 void Game::Update(float dt)
@@ -92,8 +95,6 @@ void Game::Update(float dt)
     {
         if (dt < 0.1f)
         {
-            file1 <<  (float)glfwGetTime() << " " << Ball->Position.y << "\n";
-            file2 <<  (float)glfwGetTime() << " " << Ball->Velocity.y << "\n";
             Ball->Move(dt, this->Width);
         }
     }
@@ -163,18 +164,18 @@ void Game::Render()
 {
     if (this->State == GAME_ACTIVE)
     {
-        Ball->Draw(*Rend);
-        Court->Draw(*Rend);
-        PlayerO->Draw(*Rend);
-        Stadium->Draw(*Rend);
+        Ball->Draw(*DefaultRenderer);
+        Court->Draw(*DefaultRenderer);
+        PlayerO->Draw(*AnimationRenderer);
+        Stadium->Draw(*DefaultRenderer);
     }
 
     if (this->State == GAME_MENU)
     {
         Text->RenderText("Press ENTER to start", 250.0f, this->Height / 2.0f, 1.0f, glm::vec3(0.9f, 0.5f, 0.0f));
         Text->RenderText("Press ESC to exit", 245.0f, this->Height / 2.0f + 20.0f, 0.75f);
-        Court->Draw(*Rend);
-        Stadium->Draw(*Rend);
+        Court->Draw(*DefaultRenderer);
+        Stadium->Draw(*DefaultRenderer);
     }
 
     if (this->State == GAME_WIN)

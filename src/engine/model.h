@@ -41,11 +41,58 @@ public:
 
     // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
     void loadModel(string const &path);
-private:
-    // processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
-    void processNode(aiNode *node, const aiScene *scene);
 
-    Mesh processMesh(aiMesh *mesh, const aiScene *scene);
+    Assimp::Importer m_importer;
+    const aiScene* m_pScene;
+
+#define NUM_BONES_PER_VERTEX 4
+
+    struct BoneInfo
+    {
+        glm::mat4 BoneOffset;
+        glm::mat4 FinalTransformation;
+
+        BoneInfo()
+        {
+            BoneOffset = glm::mat4(0.0f);
+            FinalTransformation = glm::mat4(0.0f);
+        }
+    };
+
+    std::map<std::string, unsigned int> m_BoneMapping; // maps a bone name to its index
+    unsigned int m_NumBones;
+    std::vector<BoneInfo> m_BoneInfo;
+
+    /* duration of the animation, can be changed if frames are not present in all interval */
+    double animDuration;
+
+    unsigned int currentAnimation;
+
+    void CalcInterpolatedScaling(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
+    void CalcInterpolatedRotation(aiQuaternion& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
+    void CalcInterpolatedPosition(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
+    unsigned int FindScaling(float AnimationTime, const aiNodeAnim* pNodeAnim);
+    unsigned int FindRotation(float AnimationTime, const aiNodeAnim* pNodeAnim);
+    unsigned int FindPosition(float AnimationTime, const aiNodeAnim* pNodeAnim);
+    const aiNodeAnim* FindNodeAnim(const aiAnimation* pAnimation, const std::string NodeName);
+    void ReadNodeHeirarchy(float AnimationTime, const aiNode* pNode, const glm::mat4& ParentTransform);
+
+    unsigned int numBones() const
+    {
+        return m_NumBones;
+    }
+
+    void boneTransform(float timeInSeconds, std::vector<glm::mat4>& Transforms);
+    void setBoneTransformations(GLuint shaderProgram, GLfloat currentTime);
+    unsigned int getNumAnimations();
+    void setAnimation(unsigned int a);
+
+private:
+
+    // processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
+    void processNode(aiNode *node);
+
+    Mesh processMesh(aiMesh *mesh);
 
     // checks all material textures of a given type and loads the textures if they're not loaded yet.
     // the required info is returned as a Texture struct.

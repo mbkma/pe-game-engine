@@ -3,7 +3,7 @@
 #include "game.h"
 
 PlayerObject::PlayerObject(Player player, glm::vec3 pos, Model item, float radius, glm::vec3 velocity)
-    : GameObject(pos, item, radius, velocity), PlayerData(player), MovementSpeed(SPEED)
+    : GameObject(pos, item, radius, velocity, 90.0f), PlayerData(player), MovementSpeed(SPEED)
 {
 
 }

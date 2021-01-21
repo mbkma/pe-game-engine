@@ -24,6 +24,10 @@ struct Vertex {
     glm::vec3 Tangent;
     // bitangent
     glm::vec3 Bitangent;
+    // bone ids
+    glm::ivec4 BoneIDs;
+    // bone weights
+    glm::vec4 BoneWeights;
 };
 
 struct Texture {

@@ -1,5 +1,6 @@
 #include "renderer.h"
-
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/string_cast.hpp>
 
 Renderer::Renderer(Shader &shader, Camera *camera)
 {
@@ -17,8 +18,6 @@ void Renderer::Draw(Model &item, glm::vec3 position, float size, float rotate)
     // prepare transformations
     this->shader.Use();
 
-    // projection matrix is already set in game.cpp
-
     this->shader.SetVector3f("viewPos", camera->Position);
     this->shader.SetFloat("material.shininess", 32.0f);
 
@@ -34,12 +33,21 @@ void Renderer::Draw(Model &item, glm::vec3 position, float size, float rotate)
     glm::mat4 view = this->camera->GetViewMatrix();
     this->shader.SetMatrix4("view", view);
 
-
     // model matrix
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, position);
+
+    model = glm::rotate(model, glm::radians(rotate), glm::vec3(0.0f, 1.0f, 0.0f));
+
     model = glm::scale(model, glm::vec3(size));
     this->shader.SetMatrix4("model", model);
+
+    if (item.getNumAnimations() > 0)
+    {
+        std::vector<glm::mat4> Transforms;
+        item.boneTransform((float)glfwGetTime(), Transforms);
+        this->shader.SetMatrix4v("gBones", Transforms);
+    }
 
     item.Draw(this->shader);
 }

@@ -21,7 +21,7 @@ public:
 
     // constructor(s)
 /*    GameObject();*/
-    GameObject(glm::vec3 pos, Model item, float size = 1.0f, glm::vec3 velocity = glm::vec3(0.0f, 0.0f, 0.0f));
+    GameObject(glm::vec3 pos, Model item, float size = 1.0f, glm::vec3 velocity = glm::vec3(0.0f, 0.0f, 0.0f), float rotation = 0.0f);
     virtual ~GameObject() = default;
 
     // draw
