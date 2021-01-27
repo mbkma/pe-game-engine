@@ -6,6 +6,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
+#include <btBulletDynamicsCommon.h>
 
 // Represents the current state of the game
 enum GameState {
@@ -46,6 +47,21 @@ public:
     void ProcessMouseMovement(float xoffset, float yoffset);
     void Update(float dt);
     void Render();
+
+
+	void InitializePhysics();
+	void ShutdownPhysics();
+
+    // core Bullet components
+    btBroadphaseInterface* m_pBroadphase;
+    btCollisionConfiguration* m_pCollisionConfiguration;
+    btCollisionDispatcher* m_pDispatcher;
+    btConstraintSolver* m_pSolver;
+    btDynamicsWorld* m_pWorld;
+
+    // a simple clock for counting time
+    btClock m_clock;
+
 private:
     void FillPlayerList();
 };

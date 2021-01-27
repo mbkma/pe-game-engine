@@ -11,6 +11,8 @@
 #include <engine/ball-object.h>
 #include <engine/text-renderer.h>
 
+#include <btBulletCollisionCommon.h>
+
 #include "game.h"
 #include "player.h"
 #include "tournament.h"
@@ -24,12 +26,17 @@ Camera            *camera;
 PlayerObject      *PlayerO;
 GameObject        *Court;
 GameObject        *Stadium;
-BallObject        *Ball;
+GameObject        *Ball;
 TextRenderer      *Text;
 std::vector<Player> Players;
 
 Game::Game(unsigned int width, unsigned int height)
-    : State(GAME_MENU), Keys(), KeysProcessed(), Width(width), Height(height)
+    : State(GAME_MENU), Keys(), KeysProcessed(), Width(width), Height(height),
+        m_pBroadphase(nullptr),
+        m_pCollisionConfiguration(nullptr),
+        m_pDispatcher(nullptr),
+        m_pSolver(nullptr),
+        m_pWorld(nullptr)
 {
 
 }
@@ -62,7 +69,7 @@ void Game::Init()
     ResourceManager::LoadModel(filesystem::path("../src/models/player/player.dae").c_str(), true, "player");
 
     // set camera
-    camera = new Camera(glm::vec3(-20.0f, 6.0f, 0.0f));
+    camera = new Camera(glm::vec3(0.0f, 2.0f, 0.0f));
 
     // set render-specific controls
     Shader default_shader = ResourceManager::GetShader("default");
@@ -72,30 +79,49 @@ void Game::Init()
     Text = new TextRenderer(this->Width, this->Height);
     Text->Load(filesystem::path("../src/fonts/OCRAEXT.TTF").c_str(), 24);
 
+    InitializePhysics();
+
     // configure game objects
-    glm::vec3 ballPos = glm::vec3(10.0f, 5.0f, 0.0f);
-    glm::vec3 courtPos = glm::vec3(0.0f, 0.0f, 0.0f);
-    glm::vec3 playerPos = glm::vec3(-11.0f, 0.0f, 0.0f);
-    Ball = new BallObject(ballPos, *ResourceManager::GetModel("ball"), BALL_RADIUS, INITIAL_BALL_VELOCITY);
-    Court = new GameObject(courtPos, *ResourceManager::GetModel("court"));
-    Stadium = new GameObject(courtPos, *ResourceManager::GetModel("stadium"));
+    Stadium = new GameObject(*ResourceManager::GetModel("stadium"),
+                             new btBoxShape(btVector3(50,0,50)),
+                             0.0,
+                             btVector3(0.0f, 0.0f, 0.0f),
+                             btQuaternion(0,0,0,1));
+
+    Court = new GameObject(*ResourceManager::GetModel("court"),
+                           new btBoxShape(btVector3(50,0.01f,50)),
+                           0.0,
+                           btVector3(0.0f, 0.0f, 0.0f),
+                           btQuaternion(0,0,0,1));
+
+    Ball = new GameObject(*ResourceManager::GetModel("ball"),
+                          new btSphereShape(0.1),
+                          1.0f,
+                          btVector3(0.0f, 5.0f, 0.0f));
+
+    // check if the world object is valid
+    if (m_pWorld) {
+        // add the object's rigid body to the world
+        m_pWorld->addRigidBody(Ball->GetRigidBody());
+        m_pWorld->addRigidBody(Court->GetRigidBody());
+    }
 
     // fill player list
     FillPlayerList();
 
-    PlayerO = new PlayerObject(Players[0], playerPos, *ResourceManager::GetModel("player"), 0.22f);
+//    PlayerO = new PlayerObject(Players[0], playerPos, *ResourceManager::GetModel("player"), 0.22f);
 
 //    Tournament *t = new Tournament("ATP", Players);
 }
 
 void Game::Update(float dt)
 {
-    // update objects
     if (this->State == GAME_ACTIVE)
     {
-        if (dt < 0.1f)
-        {
-            Ball->Move(dt, this->Width);
+        // check if the world object exists
+        if (m_pWorld) {
+            // step the simulation through time
+            m_pWorld->stepSimulation(dt);
         }
     }
     if (this->State == GAME_MENU)
@@ -103,19 +129,14 @@ void Game::Update(float dt)
         camera->Position.x = glm::cos((float)glfwGetTime()*0.1f) * 10.0f-10.0f;
         camera->Position.z = glm::sin((float)glfwGetTime()*0.1f) * 10.0f-20.0f;
     }
-
-    // check for collisions
-    //TODO
-    //this->DoCollisions();
-
-    // check loss condition
-    //TODO
-    // check win condition
-    //TODO
 }
 
 void Game::ProcessMouseMovement(float xoffset, float yoffset)
 {
+    if (this->State == GAME_ACTIVE)
+    {
+        camera->ProcessMouseMovement(xoffset, yoffset);
+    }
     if (this->State == GAME_MENU)
     {
         //TODO
@@ -123,10 +144,6 @@ void Game::ProcessMouseMovement(float xoffset, float yoffset)
     if (this->State == GAME_WIN)
     {
         //TODO
-    }
-    if (this->State == GAME_ACTIVE)
-    {
-        camera->ProcessMouseMovement(xoffset, yoffset);
     }
 }
 
@@ -150,32 +167,41 @@ void Game::ProcessInput(float dt)
     if (this->State == GAME_ACTIVE)
     {
         if (this->Keys[GLFW_KEY_W])
-            PlayerO->ProcessKeyboard(UP, dt);
+            camera->ProcessKeyboard(UP, dt);
         if (this->Keys[GLFW_KEY_S])
-            PlayerO->ProcessKeyboard(DOWN, dt);
+            camera->ProcessKeyboard(DOWN, dt);
         if (this->Keys[GLFW_KEY_A])
-            PlayerO->ProcessKeyboard(LEFT, dt);
+            camera->ProcessKeyboard(LEFT, dt);
         if (this->Keys[GLFW_KEY_D])
-            PlayerO->ProcessKeyboard(RIGHT, dt);
+            camera->ProcessKeyboard(RIGHT, dt);
     }
 }
 
 void Game::Render()
 {
+    btScalar transform[16];
+
     if (this->State == GAME_ACTIVE)
     {
-        Ball->Draw(*DefaultRenderer);
-        Court->Draw(*DefaultRenderer);
-        PlayerO->Draw(*AnimationRenderer);
-        Stadium->Draw(*DefaultRenderer);
+        Ball->GetTransform(transform);
+        Ball->Draw(*DefaultRenderer, transform);
+
+        Court->GetTransform(transform);
+        Court->Draw(*DefaultRenderer, transform);
+
+        Stadium->GetTransform(transform);
+        Stadium->Draw(*DefaultRenderer, transform);
+//        PlayerO->Draw(*AnimationRenderer);
     }
 
     if (this->State == GAME_MENU)
     {
         Text->RenderText("Press ENTER to start", 250.0f, this->Height / 2.0f, 1.0f, glm::vec3(0.9f, 0.5f, 0.0f));
         Text->RenderText("Press ESC to exit", 245.0f, this->Height / 2.0f + 20.0f, 0.75f);
-        Court->Draw(*DefaultRenderer);
-        Stadium->Draw(*DefaultRenderer);
+        Court->GetTransform(transform);
+        Court->Draw(*DefaultRenderer, transform);
+        Stadium->GetTransform(transform);
+        Stadium->Draw(*DefaultRenderer, transform);
     }
 
     if (this->State == GAME_WIN)
@@ -196,21 +222,25 @@ void Game::FillPlayerList()
     Players.push_back(*p);
 }
 
-// collision detection
-//bool CheckCollision(GameObject &one, GameObject &two);
-//Collision CheckCollision(BallObject &one, GameObject &two);
+void Game::InitializePhysics()
+{
+    // create the collision configuration
+    m_pCollisionConfiguration = new btDefaultCollisionConfiguration();
+    // create the dispatcher
+    m_pDispatcher = new btCollisionDispatcher(m_pCollisionConfiguration);
+    // create the broadphase
+    m_pBroadphase = new btDbvtBroadphase();
+    // create the constraint solver
+    m_pSolver = new btSequentialImpulseConstraintSolver();
+    // create the world
+    m_pWorld = new btDiscreteDynamicsWorld(m_pDispatcher, m_pBroadphase, m_pSolver, m_pCollisionConfiguration);
+}
 
-//void Game::DoCollisions()
-//{
-//        //TODO
-//}
-
-//bool CheckCollision(GameObject &one, GameObject &two)
-//{
-//        //TODO
-//}
-
-//Collision CheckCollision(BallObject &one, GameObject &two)
-//{
-//        //TODO
-//}
+void Game::ShutdownPhysics()
+{
+    delete m_pWorld;
+    delete m_pSolver;
+    delete m_pBroadphase;
+    delete m_pDispatcher;
+    delete m_pCollisionConfiguration;
+}

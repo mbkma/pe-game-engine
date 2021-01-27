@@ -10,7 +10,7 @@ Pelota is an open source tennis simulation game, which uses the OpenGL programmi
 
 On Ubuntu/Debian systems:
 
-`sudo apt install libglfw3-dev libglm-dev libassimp-dev libfreetype6-dev`
+`sudo apt install libglfw3-dev libglm-dev libassimp-dev libfreetype6-dev libbullet-dev`
 
 ## Build
 

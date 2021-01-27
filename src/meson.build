@@ -16,6 +16,7 @@ glfw = dependency('glfw3')
 glm = dependency('glm')
 assimp = dependency('assimp')
 freetype = dependency('freetype2')
+bullet = dependency('bullet')
 
-executable('pelota', sources, dependencies : [glfw, glm, assimp, freetype, dl_dep, fs], cpp_pch : 'stb_image/stb_image.h', install: true)
+executable('pelota', sources, dependencies : [glfw, glm, assimp, freetype, bullet, dl_dep, fs], cpp_pch : 'stb_image/stb_image.h', install: true)
 

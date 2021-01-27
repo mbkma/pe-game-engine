@@ -10,13 +10,15 @@
 class PlayerObject : public GameObject
 {
 public:
-    Player PlayerData;
-    float MovementSpeed;
+    Player *m_Player;
 
     // constructor/destructor
-    PlayerObject(Player player, glm::vec3 pos, Model item, float radius = 1.0f, glm::vec3 velocity = glm::vec3(0,0,0));
-
-    void ProcessKeyboard(Direction direction, float deltaTime);
+    PlayerObject(Player *player,
+                 Model item,
+                 btCollisionShape* pShape,
+                 const float &mass,
+                 const btVector3 &initialPosition,
+                 const btQuaternion &initialRotation);
 };
 
 #endif

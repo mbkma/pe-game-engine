@@ -11,13 +11,12 @@
 class BallObject : public GameObject
 {
 public:
-    float   Radius;
-
     // constructor(s)
-    BallObject(glm::vec3 pos, Model item, float radius, glm::vec3 velocity);
-
-    // moves the ball, returns new position
-    glm::vec3 Move(float dt, unsigned int window_width);
+    BallObject(Model item,
+               btCollisionShape* pShape,
+               const float &mass,
+               const btVector3 &initialPosition,
+               const btQuaternion &initialRotation);
 };
 
 #endif
