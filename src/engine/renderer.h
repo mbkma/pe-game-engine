@@ -4,6 +4,7 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <btBulletDynamicsCommon.h>
 
 #include "model.h"
 #include "shader.h"

@@ -6,7 +6,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
-#include <btBulletDynamicsCommon.h>
 #include <SFML/Audio.hpp>
 
 // Represents the current state of the game
@@ -26,8 +25,6 @@ enum Direction {
 
 // Initial velocity of the Ball
 const glm::vec3 INITIAL_BALL_VELOCITY(0.0f, 0.0f, 0.0f);
-// Radius of the ball object
-const float BALL_RADIUS = 0.05f;
 
 class Game
 {
@@ -50,19 +47,6 @@ public:
     void Render();
 
     sf::Music music;
-
-    void InitializePhysics();
-    void ShutdownPhysics();
-
-    // core Bullet components
-    btBroadphaseInterface* m_pBroadphase;
-    btCollisionConfiguration* m_pCollisionConfiguration;
-    btCollisionDispatcher* m_pDispatcher;
-    btConstraintSolver* m_pSolver;
-    btDynamicsWorld* m_pWorld;
-
-    // a simple clock for counting time
-    btClock m_clock;
 
 private:
     void FillPlayerList();

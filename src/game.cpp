@@ -7,6 +7,7 @@
 #include <engine/resource-manager.h>
 #include <engine/renderer.h>
 #include <engine/game-object.h>
+#include <engine/physics.h>
 #include <engine/player-object.h>
 #include <engine/ball-object.h>
 #include <engine/text-renderer.h>
@@ -20,6 +21,7 @@
 using namespace std;
 
 // Game-related State data
+Physics           *Physic;
 Renderer          *DefaultRenderer;
 Renderer          *AnimationRenderer;
 Camera            *camera;
@@ -29,14 +31,10 @@ GameObject        *Stadium;
 GameObject        *Ball;
 TextRenderer      *Text;
 std::vector<Player> Players;
+std::vector<GameObject*> GameObjects;
 
 Game::Game(unsigned int width, unsigned int height)
-    : State(GAME_MENU), Keys(), KeysProcessed(), Width(width), Height(height),
-        m_pBroadphase(nullptr),
-        m_pCollisionConfiguration(nullptr),
-        m_pDispatcher(nullptr),
-        m_pSolver(nullptr),
-        m_pWorld(nullptr)
+    : State(GAME_MENU), Keys(), KeysProcessed(), Width(width), Height(height)
 {
 
 }
@@ -84,8 +82,6 @@ void Game::Init()
     music.openFromFile("../src/sounds/fire-inna-streets.wav");
     music.play();
 
-    InitializePhysics();
-
     // configure game objects
     Stadium = new GameObject(*ResourceManager::GetModel("stadium"),
                              new btBoxShape(btVector3(50,0,50)),
@@ -94,21 +90,27 @@ void Game::Init()
                              btQuaternion(0,0,0,1));
 
     Court = new GameObject(*ResourceManager::GetModel("court"),
-                           new btBoxShape(btVector3(50,0.01f,50)),
+                           new btBoxShape(btVector3(50,0.03f,50)),
                            0.0,
                            btVector3(0.0f, 0.0f, 0.0f),
                            btQuaternion(0,0,0,1));
 
     Ball = new GameObject(*ResourceManager::GetModel("ball"),
-                          new btSphereShape(0.1),
+                          new btSphereShape(0.06f),
                           1.0f,
                           btVector3(0.0f, 5.0f, 0.0f));
 
+    GameObjects.push_back(Stadium);
+    GameObjects.push_back(Court);
+    GameObjects.push_back(Ball);
+
+    Physic = new Physics(GameObjects);
+
     // check if the world object is valid
-    if (m_pWorld) {
+    if (Physic->m_pWorld) {
         // add the object's rigid body to the world
-        m_pWorld->addRigidBody(Ball->GetRigidBody());
-        m_pWorld->addRigidBody(Court->GetRigidBody());
+        Physic->m_pWorld->addRigidBody(Ball->GetRigidBody());
+        Physic->m_pWorld->addRigidBody(Court->GetRigidBody());
     }
 
     // fill player list
@@ -124,15 +126,19 @@ void Game::Update(float dt)
     if (this->State == GAME_ACTIVE)
     {
         // check if the world object exists
-        if (m_pWorld) {
+        if (Physic->m_pWorld) {
             // step the simulation through time
-            m_pWorld->stepSimulation(dt);
+            Physic->m_pWorld->stepSimulation(dt);
+
+            // check for any new collisions/separations
+            Physic->CheckForCollisionEvents();
         }
     }
     if (this->State == GAME_MENU)
     {
         camera->Position.x = glm::cos((float)glfwGetTime()*0.1f) * 10.0f-10.0f;
         camera->Position.z = glm::sin((float)glfwGetTime()*0.1f) * 10.0f-20.0f;
+        camera->Position.y = 30.0f;
     }
 }
 
@@ -227,25 +233,3 @@ void Game::FillPlayerList()
     Players.push_back(*p);
 }
 
-void Game::InitializePhysics()
-{
-    // create the collision configuration
-    m_pCollisionConfiguration = new btDefaultCollisionConfiguration();
-    // create the dispatcher
-    m_pDispatcher = new btCollisionDispatcher(m_pCollisionConfiguration);
-    // create the broadphase
-    m_pBroadphase = new btDbvtBroadphase();
-    // create the constraint solver
-    m_pSolver = new btSequentialImpulseConstraintSolver();
-    // create the world
-    m_pWorld = new btDiscreteDynamicsWorld(m_pDispatcher, m_pBroadphase, m_pSolver, m_pCollisionConfiguration);
-}
-
-void Game::ShutdownPhysics()
-{
-    delete m_pWorld;
-    delete m_pSolver;
-    delete m_pBroadphase;
-    delete m_pDispatcher;
-    delete m_pCollisionConfiguration;
-}

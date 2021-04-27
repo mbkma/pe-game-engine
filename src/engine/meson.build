@@ -2,6 +2,7 @@ sources += files(
     'ball-object.cpp',
     'camera.cpp',
     'game-object.cpp',
+    'physics.cpp',
     'player-object.cpp',
     'mesh.cpp',
     'model.cpp',
