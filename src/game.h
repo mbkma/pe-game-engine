@@ -7,6 +7,7 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <btBulletDynamicsCommon.h>
+#include <SFML/Audio.hpp>
 
 // Represents the current state of the game
 enum GameState {
@@ -48,9 +49,10 @@ public:
     void Update(float dt);
     void Render();
 
+    sf::Music music;
 
-	void InitializePhysics();
-	void ShutdownPhysics();
+    void InitializePhysics();
+    void ShutdownPhysics();
 
     // core Bullet components
     btBroadphaseInterface* m_pBroadphase;

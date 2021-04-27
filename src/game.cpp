@@ -79,6 +79,11 @@ void Game::Init()
     Text = new TextRenderer(this->Width, this->Height);
     Text->Load(filesystem::path("../src/fonts/OCRAEXT.TTF").c_str(), 24);
 
+    // music
+    // all the music is freely available: http://www.manuchao.net/download-here-new-manu-chao-songs
+    music.openFromFile("../src/sounds/fire-inna-streets.wav");
+    music.play();
+
     InitializePhysics();
 
     // configure game objects
