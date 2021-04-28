@@ -25,13 +25,12 @@ Physics           *Physic;
 Renderer          *DefaultRenderer;
 Renderer          *AnimationRenderer;
 Camera            *camera;
-PlayerObject      *PlayerO;
+GameObject        *PlayerO;
 GameObject        *Court;
 GameObject        *Stadium;
 GameObject        *Ball;
 TextRenderer      *Text;
 std::vector<Player> Players;
-//std::vector<GameObject*> GameObjects;
 
 Game::Game(unsigned int width, unsigned int height)
     : State(GAME_MENU), Keys(), KeysProcessed(), Width(width), Height(height)
@@ -100,9 +99,16 @@ void Game::Init()
                           1.0f,
                           btVector3(0.0f, 5.0f, 0.0f));
 
+
+    PlayerO = new GameObject(*ResourceManager::GetModel("player"),
+                             new btSphereShape(1.0f),
+                             1.0f,
+                             btVector3(0.0f, 1.0f, 0.0f));
+
     ResourceManager::GameObjects["Stadium"] = Stadium;
     ResourceManager::GameObjects["Court"] = Court;
     ResourceManager::GameObjects["Ball"] = Ball;
+    ResourceManager::GameObjects["Player"] = PlayerO;
 
     Physic = new Physics();
 
@@ -111,12 +117,11 @@ void Game::Init()
         // add the object's rigid body to the world
         Physic->m_pWorld->addRigidBody(Ball->GetRigidBody());
         Physic->m_pWorld->addRigidBody(Court->GetRigidBody());
+        Physic->m_pWorld->addRigidBody(PlayerO->GetRigidBody());
     }
 
     // fill player list
     FillPlayerList();
-
-//    PlayerO = new PlayerObject(Players[0], playerPos, *ResourceManager::GetModel("player"), 0.22f);
 
 //    Tournament *t = new Tournament("ATP", Players);
 }
@@ -202,7 +207,9 @@ void Game::Render()
 
         Stadium->GetTransform(transform);
         Stadium->Draw(*DefaultRenderer, transform);
-//        PlayerO->Draw(*AnimationRenderer);
+
+        PlayerO->GetTransform(transform);
+        PlayerO->Draw(*AnimationRenderer, transform);
     }
 
     if (this->State == GAME_MENU)

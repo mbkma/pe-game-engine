@@ -50,12 +50,12 @@ void Renderer::Draw(Model &item, btScalar *transform, float size)
 
 //    std::cout<<glm::to_string(model)<<std::endl;
 
-//    if (item.getNumAnimations() > 0)
-//    {
-//        std::vector<glm::mat4> Transforms;
-//        item.boneTransform((float)glfwGetTime(), Transforms);
-//        this->shader.SetMatrix4v("gBones", Transforms);
-//    }
+    if (item.getNumAnimations() > 0)
+    {
+        std::vector<glm::mat4> Transforms;
+        item.boneTransform((float)glfwGetTime(), Transforms);
+        this->shader.SetMatrix4v("gBones", Transforms);
+    }
 
     item.Draw(this->shader);
 }
