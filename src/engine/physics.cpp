@@ -1,6 +1,7 @@
 #include "physics.h"
+#include "resource-manager.h"
 
-Physics::Physics(std::vector<GameObject*> GameObjects) : m_GameObjects(GameObjects)
+Physics::Physics()
 {
     // create the collision configuration
     m_pCollisionConfiguration = new btDefaultCollisionConfiguration();
@@ -88,8 +89,8 @@ void Physics::CheckForCollisionEvents() {
 
 void Physics::CollisionEvent(btRigidBody * pBody0, btRigidBody * pBody1) {
     // find the two colliding objects
-    GameObject* pObj0 = FindGameObject(pBody0);
-    GameObject* pObj1 = FindGameObject(pBody1);
+    GameObject* pObj0 = ResourceManager::FindGameObject(pBody0);
+    GameObject* pObj1 = ResourceManager::FindGameObject(pBody1);
 
     // exit if we didn't find anything
     if (!pObj0 || !pObj1) return;
@@ -99,23 +100,11 @@ void Physics::CollisionEvent(btRigidBody * pBody0, btRigidBody * pBody1) {
 
 void Physics::SeparationEvent(btRigidBody * pBody0, btRigidBody * pBody1) {
     // get the two separating objects
-    GameObject* pObj0 = FindGameObject((btRigidBody*)pBody0);
-    GameObject* pObj1 = FindGameObject((btRigidBody*)pBody1);
+    GameObject* pObj0 = ResourceManager::FindGameObject((btRigidBody*)pBody0);
+    GameObject* pObj1 = ResourceManager::FindGameObject((btRigidBody*)pBody1);
 
     // exit if we didn't find anything
     if (!pObj0 || !pObj1) return;
 
 //    std::cout << "SeparationEvent!" << std::endl;
-}
-
-GameObject* Physics::FindGameObject(btRigidBody* pBody) {
-    // search through our list of gameobjects finding
-    // the one with a rigid body that matches the given one
-    for (auto iter : m_GameObjects) {
-        if (iter->GetRigidBody() == pBody) {
-            // found the body, so return the corresponding game object
-            return iter;
-        }
-    }
-    return 0;
 }

@@ -7,7 +7,7 @@
 class Physics
 {
 public:
-    Physics(std::vector<GameObject*> GameObjects);
+    Physics();
     ~Physics();
 
     // core Bullet components
@@ -16,8 +16,6 @@ public:
     btCollisionDispatcher* m_pDispatcher;
     btConstraintSolver* m_pSolver;
     btDynamicsWorld* m_pWorld;
-
-    std::vector<GameObject*> m_GameObjects;
 
     // convenient typedefs for collision events
     typedef std::pair<const btRigidBody*, const btRigidBody*> CollisionPair;
@@ -29,7 +27,6 @@ public:
     void CheckForCollisionEvents();
     void CollisionEvent(btRigidBody * pBody0, btRigidBody * pBody1);
     void SeparationEvent(btRigidBody * pBody0, btRigidBody * pBody1);
-    GameObject* FindGameObject(btRigidBody* pBody);
 };
 
 #endif

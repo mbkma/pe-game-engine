@@ -8,7 +8,9 @@
 
 #include "shader.h"
 #include "model.h"
+#include "game-object.h"
 
+#include <btBulletDynamicsCommon.h>
 
 // A static singleton ResourceManager class that hosts several
 // functions to load Models and Shaders. Each loaded texture
@@ -19,18 +21,27 @@ class ResourceManager
 {
 public:
     // resource storage
-    static std::map<std::string, Shader>    Shaders;
-    static std::map<std::string, Model*>     Models;
+    static std::map<std::string, GameObject*>    GameObjects;
+    static std::map<std::string, Shader>         Shaders;
+    static std::map<std::string, Model*>         Models;
+
     // loads (and generates) a shader program from file loading vertex, fragment (and geometry) shader's source code. If gShaderFile is not nullptr, it also loads a geometry shader
     static Shader    LoadShader(const char *vShaderFile, const char *fShaderFile, const char *gShaderFile, std::string name);
+
     // retrieves a stored sader
     static Shader    GetShader(std::string name);
+
     // loads (and generates) a model from file
     static Model* LoadModel(const char *file, bool alpha, std::string name);
+
     // retrieves a stored model
     static Model* GetModel(std::string name);
+
     // properly de-allocates all loaded resources
     static void      Clear();
+
+    static GameObject* FindGameObject(btRigidBody* pBody);
+
 private:
     // private constructor, that is we do not want any actual resource manager objects. Its members and functions should be publicly available (static).
     ResourceManager() { }

@@ -31,7 +31,7 @@ GameObject        *Stadium;
 GameObject        *Ball;
 TextRenderer      *Text;
 std::vector<Player> Players;
-std::vector<GameObject*> GameObjects;
+//std::vector<GameObject*> GameObjects;
 
 Game::Game(unsigned int width, unsigned int height)
     : State(GAME_MENU), Keys(), KeysProcessed(), Width(width), Height(height)
@@ -100,11 +100,11 @@ void Game::Init()
                           1.0f,
                           btVector3(0.0f, 5.0f, 0.0f));
 
-    GameObjects.push_back(Stadium);
-    GameObjects.push_back(Court);
-    GameObjects.push_back(Ball);
+    ResourceManager::GameObjects["Stadium"] = Stadium;
+    ResourceManager::GameObjects["Court"] = Court;
+    ResourceManager::GameObjects["Ball"] = Ball;
 
-    Physic = new Physics(GameObjects);
+    Physic = new Physics();
 
     // check if the world object is valid
     if (Physic->m_pWorld) {
