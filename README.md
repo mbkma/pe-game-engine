@@ -12,6 +12,10 @@ On Ubuntu/Debian systems:
 
 `sudo apt install libglfw3-dev libglm-dev libassimp-dev libfreetype6-dev libbullet-dev libsfml-dev`
 
+On Arch systems:
+
+`sudo pacman -S glfw-x11 glm assimp freetype2 bullet sfml`
+
 ## Build
 
 Simple build procedure:
