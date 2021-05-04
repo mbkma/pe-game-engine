@@ -14,7 +14,7 @@ public:
 
     // constructor/destructor
     PlayerObject(Player *player,
-                 Model item,
+                 Model *item,
                  btCollisionShape* pShape,
                  const float &mass,
                  const btVector3 &initialPosition,

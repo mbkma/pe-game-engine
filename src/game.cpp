@@ -63,7 +63,7 @@ void Game::Init()
     ResourceManager::LoadModel(filesystem::path("../src/models/stadium/stadium.obj").c_str(), true, "stadium");
     ResourceManager::LoadModel(filesystem::path("../src/models/court/court.obj").c_str(), true, "court");
     ResourceManager::LoadModel(filesystem::path("../src/models/ball/ball.obj").c_str(), true, "ball");
-    ResourceManager::LoadModel(filesystem::path("../src/models/player/player.dae").c_str(), true, "player");
+    ResourceManager::LoadModel(filesystem::path("../src/models/test/Sketchfab_2019_08_01_13_46_58.gltf").c_str(), true, "player");
 
     // set camera
     camera = new Camera(glm::vec3(0.0f, 2.0f, 0.0f));
@@ -82,28 +82,29 @@ void Game::Init()
     music.play();
 
     // configure game objects
-    Stadium = new GameObject(*ResourceManager::GetModel("stadium"),
+    Stadium = new GameObject(ResourceManager::GetModel("stadium"),
                              new btBoxShape(btVector3(50,0,50)),
                              0.0,
                              btVector3(0.0f, 0.0f, 0.0f),
                              btQuaternion(0,0,0,1));
 
-    Court = new GameObject(*ResourceManager::GetModel("court"),
+    Court = new GameObject(ResourceManager::GetModel("court"),
                            new btBoxShape(btVector3(50,0.03f,50)),
                            0.0,
                            btVector3(0.0f, 0.0f, 0.0f),
                            btQuaternion(0,0,0,1));
 
-    Ball = new GameObject(*ResourceManager::GetModel("ball"),
+    Ball = new GameObject(ResourceManager::GetModel("ball"),
                           new btSphereShape(0.06f),
                           1.0f,
                           btVector3(0.0f, 5.0f, 0.0f));
 
 
-    PlayerO = new GameObject(*ResourceManager::GetModel("player"),
+    PlayerO = new GameObject(ResourceManager::GetModel("player"),
                              new btSphereShape(1.0f),
                              1.0f,
-                             btVector3(0.0f, 1.0f, 0.0f));
+                             btVector3(-5.0f, 1.0f, 0.0f),
+                             btQuaternion(0,0,1,1));
 
     ResourceManager::GameObjects["Stadium"] = Stadium;
     ResourceManager::GameObjects["Court"] = Court;
@@ -122,6 +123,8 @@ void Game::Init()
 
     // fill player list
     FillPlayerList();
+
+	std::cout << "numaAnim: " << PlayerO->Item->getNumAnimations() << std::endl;
 
 //    Tournament *t = new Tournament("ATP", Players);
 }

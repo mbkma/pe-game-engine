@@ -1,6 +1,6 @@
 #include "game-object.h"
 
-GameObject::GameObject(Model item,
+GameObject::GameObject(Model *item,
                        btCollisionShape* pShape,
                        const float &mass,
                        const btVector3 &initialPosition,
@@ -47,7 +47,7 @@ void GameObject::Draw(Renderer &renderer, btScalar *transform)
     {
         case BOX_SHAPE_PROXYTYPE:
         {
-            renderer.Draw(this->Item, transform, 1.0f);
+            renderer.Draw(Item, transform, 1.0f);
             break;
         }
         case SPHERE_SHAPE_PROXYTYPE:
@@ -57,7 +57,7 @@ void GameObject::Draw(Renderer &renderer, btScalar *transform)
             // get the sphere's size from the shape
             float radius = sphere->getMargin();
             // draw the sphere
-            renderer.Draw(this->Item, transform, radius);
+            renderer.Draw(Item, transform, radius);
             break;
         }
         default:

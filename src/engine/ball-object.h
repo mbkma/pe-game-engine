@@ -12,7 +12,7 @@ class BallObject : public GameObject
 {
 public:
     // constructor(s)
-    BallObject(Model item,
+    BallObject(Model *item,
                btCollisionShape* pShape,
                const float &mass,
                const btVector3 &initialPosition,

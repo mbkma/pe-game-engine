@@ -14,13 +14,13 @@
 class GameObject
 {
 public:
-    Model       Item;
+    Model       *Item;
 
     btCollisionShape*  m_pShape;
     btRigidBody*       m_pBody;
     MotionState*       m_pMotionState;
 
-    GameObject(Model item,
+    GameObject(Model *item,
                btCollisionShape* pShape,
                const float &mass,
                const btVector3 &initialPosition = btVector3(0,0,0),
