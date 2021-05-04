@@ -12,11 +12,6 @@ static inline glm::quat quat_cast(const aiQuaternion &q) { return glm::quat(q.w,
 static inline glm::mat4 mat4_cast(const aiMatrix4x4 &m) { return glm::transpose(glm::make_mat4(&m.a1)); }
 static inline glm::mat4 mat4_cast(const aiMatrix3x3 &m) { return glm::transpose(glm::make_mat3(&m.a1)); }
 
-Model::Model()
-{
-    //TODO
-}
-
 Model::Model(string const &path, bool gamma) : gammaCorrection(gamma), m_NumBones(0), currentAnimation(0)
 {
     this->m_pScene = NULL;
@@ -32,13 +27,15 @@ void Model::Draw(Shader &shader)
 
 void Model::loadModel(string const &path)
 {
+	m_importer = new Assimp::Importer(); // TODO delete
+
     // read file via ASSIMP
-    m_pScene = m_importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals |  aiProcess_CalcTangentSpace); // | aiProcess_FlipUVs
+    m_pScene = m_importer->ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals |  aiProcess_CalcTangentSpace); // | aiProcess_FlipUVs
 
     // check for errors
     if(!m_pScene || m_pScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !m_pScene->mRootNode) // if is Not Zero
     {
-        cout << "ERROR::ASSIMP:: " << m_importer.GetErrorString() << endl;
+        cout << "ERROR::ASSIMP:: " << m_importer->GetErrorString() << endl;
         return;
     }
     // retrieve the directory path of the filepath
@@ -283,7 +280,7 @@ unsigned int Model::FindPosition(float AnimationTime, const aiNodeAnim* pNodeAni
         }
     }
 
-    assert(0);
+    //assert(0);
     return 0;
 }
 
@@ -297,7 +294,7 @@ unsigned int Model::FindRotation(float AnimationTime, const aiNodeAnim* pNodeAni
         }
     }
 
-    assert(0);
+   // assert(0);
     return 0;
 }
 
@@ -311,7 +308,7 @@ unsigned int Model::FindScaling(float AnimationTime, const aiNodeAnim* pNodeAnim
         }
     }
 
-    assert(0);
+ //   assert(0);
     return 0;
 }
 
@@ -327,7 +324,7 @@ void Model::CalcInterpolatedPosition(aiVector3D& Out, float AnimationTime, const
         assert(NextPositionIndex < pNodeAnim->mNumPositionKeys);
         float DeltaTime = (float)(pNodeAnim->mPositionKeys[NextPositionIndex].mTime - pNodeAnim->mPositionKeys[PositionIndex].mTime);
         float Factor = (AnimationTime - (float)pNodeAnim->mPositionKeys[PositionIndex].mTime) / DeltaTime;
-        assert(Factor >= 0.0f && Factor <= 1.0f);
+      //  assert(Factor >= 0.0f && Factor <= 1.0f);
         const aiVector3D& Start = pNodeAnim->mPositionKeys[PositionIndex].mValue;
         const aiVector3D& End = pNodeAnim->mPositionKeys[NextPositionIndex].mValue;
         aiVector3D Delta = End - Start;
@@ -347,7 +344,7 @@ void Model::CalcInterpolatedRotation(aiQuaternion& Out, float AnimationTime, con
         assert(NextRotationIndex < pNodeAnim->mNumRotationKeys);
         float DeltaTime = (float)(pNodeAnim->mRotationKeys[NextRotationIndex].mTime - pNodeAnim->mRotationKeys[RotationIndex].mTime);
         float Factor = (AnimationTime - (float)pNodeAnim->mRotationKeys[RotationIndex].mTime) / DeltaTime;
-        assert(Factor >= 0.0f && Factor <= 1.0f);
+     //   assert(Factor >= 0.0f && Factor <= 1.0f);
         const aiQuaternion& StartRotationQ = pNodeAnim->mRotationKeys[RotationIndex].mValue;
         const aiQuaternion& EndRotationQ = pNodeAnim->mRotationKeys[NextRotationIndex].mValue;
         aiQuaternion::Interpolate(Out, StartRotationQ, EndRotationQ, Factor);
@@ -366,7 +363,7 @@ void Model::CalcInterpolatedScaling(aiVector3D& Out, float AnimationTime, const 
         assert(NextScalingIndex < pNodeAnim->mNumScalingKeys);
         float DeltaTime = (float)(pNodeAnim->mScalingKeys[NextScalingIndex].mTime - pNodeAnim->mScalingKeys[ScalingIndex].mTime);
         float Factor = (AnimationTime - (float)pNodeAnim->mScalingKeys[ScalingIndex].mTime) / DeltaTime;
-        assert(Factor >= 0.0f && Factor <= 1.0f);
+      //  assert(Factor >= 0.0f && Factor <= 1.0f);
         const aiVector3D& Start = pNodeAnim->mScalingKeys[ScalingIndex].mValue;
         const aiVector3D& End = pNodeAnim->mScalingKeys[NextScalingIndex].mValue;
         aiVector3D Delta = End - Start;

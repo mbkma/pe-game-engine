@@ -33,7 +33,6 @@ public:
     bool gammaCorrection;
 
     // constructor, expects a filepath to a 3D model.
-    Model();
     Model(string const &path, bool gamma = false);
 
     // draws the model, and thus all its meshes
@@ -42,7 +41,7 @@ public:
     // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
     void loadModel(string const &path);
 
-    Assimp::Importer m_importer;
+    Assimp::Importer* m_importer;
     const aiScene* m_pScene;
 
 #define NUM_BONES_PER_VERTEX 4
