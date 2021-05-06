@@ -12,8 +12,6 @@ PlayerObject::PlayerObject(Model *item,
 
                           :PhysicObject()
 {
-    int mass = 1;
-
     Item = item;
 
     // create the initial transform
@@ -49,7 +47,6 @@ void PlayerObject::moveForward(float dt)
     xform = m_ghostObject->getWorldTransform ();
 
     btVector3 forwardDir = -xform.getBasis()[2];
-    printf("forwardDir=%f,%f,%f\n",forwardDir[0],forwardDir[1],forwardDir[2]);
     btVector3 upDir = xform.getBasis()[1];
     btVector3 strafeDir = xform.getBasis()[0];
     forwardDir.normalize ();
@@ -60,7 +57,7 @@ void PlayerObject::moveForward(float dt)
     btScalar walkVelocity = btScalar(1.1) * 1.0; // 4 km/h -> 1.1 m/s
     btScalar walkSpeed = walkVelocity * dt;
 
-        walkDirection += forwardDir;
+    walkDirection += forwardDir;
 
     m_character->setWalkDirection(walkDirection*walkSpeed);
 }
@@ -72,7 +69,6 @@ void PlayerObject::moveBackward(float dt)
     xform = m_ghostObject->getWorldTransform ();
 
     btVector3 forwardDir = -xform.getBasis()[2];
-    printf("forwardDir=%f,%f,%f\n",forwardDir[0],forwardDir[1],forwardDir[2]);
     btVector3 upDir = xform.getBasis()[1];
     btVector3 strafeDir = xform.getBasis()[0];
     forwardDir.normalize ();
@@ -95,7 +91,6 @@ void PlayerObject::moveLeft(float dt)
     xform = m_ghostObject->getWorldTransform ();
 
     btVector3 forwardDir = -xform.getBasis()[2];
-    printf("forwardDir=%f,%f,%f\n",forwardDir[0],forwardDir[1],forwardDir[2]);
     btVector3 upDir = xform.getBasis()[1];
     btVector3 strafeDir = xform.getBasis()[0];
     forwardDir.normalize ();
@@ -118,7 +113,6 @@ void PlayerObject::moveRight(float dt)
     xform = m_ghostObject->getWorldTransform ();
 
     btVector3 forwardDir = -xform.getBasis()[2];
-    printf("forwardDir=%f,%f,%f\n",forwardDir[0],forwardDir[1],forwardDir[2]);
     btVector3 upDir = xform.getBasis()[1];
     btVector3 strafeDir = xform.getBasis()[0];
     forwardDir.normalize ();

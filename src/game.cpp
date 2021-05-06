@@ -12,6 +12,7 @@
 #include <engine/renderer.h>
 #include <engine/ball-object.h>
 #include <engine/text-renderer.h>
+#include <engine/debug-drawer.h>
 
 #include <btBulletCollisionCommon.h>
 
@@ -34,7 +35,9 @@ PhysicObject        *Ball;
 PhysicObject        *Ground;
 PhysicObject        *Test;
 TextRenderer      *Text;
+DebugDrawer* m_pDebugDrawer;
 std::vector<Player> Players;
+Shader color_shader;
 
 Game::Game(unsigned int width, unsigned int height)
     : State(GAME_MENU), Keys(), KeysProcessed(), Width(width), Height(height)
@@ -59,7 +62,7 @@ void Game::Init()
     // load shaders
     ResourceManager::LoadShader("../src/shaders/default.vs", "../src/shaders/default.fs", nullptr, "default");
     ResourceManager::LoadShader("../src/shaders/animation.vs", "../src/shaders/default.fs", nullptr, "animation");
-
+    ResourceManager::LoadShader("../src/shaders/colors.vs", "../src/shaders/colors.fs", nullptr, "color");
     // configure shaders
     // TODO
 
@@ -75,6 +78,7 @@ void Game::Init()
     // set render-specific controls
     Shader default_shader = ResourceManager::GetShader("default");
     Shader animation_shader = ResourceManager::GetShader("animation");
+    color_shader = ResourceManager::GetShader("color");
     DefaultRenderer = new Renderer(default_shader, camera);
     AnimationRenderer = new Renderer(animation_shader, camera);
     Text = new TextRenderer(this->Width, this->Height);
@@ -132,10 +136,18 @@ void Game::Init()
         Physic->m_pWorld->addAction(PlayerO->m_character);
     }
 
+    // create the debug drawer
+    m_pDebugDrawer = new DebugDrawer();
+    // set the initial debug level to 0
+    m_pDebugDrawer->setDebugMode(0);
+
+    // add the debug drawer to the world
+    Physic->m_pWorld->setDebugDrawer(m_pDebugDrawer);
+
     // fill player list
     FillPlayerList();
 
-	std::cout << "numAnim: " << PlayerO->Item->getNumAnimations() << std::endl;
+    std::cout << "numAnim: " << PlayerO->Item->getNumAnimations() << std::endl;
 
 //    Tournament *t = new Tournament("ATP", Players);
 }
@@ -214,6 +226,17 @@ void Game::ProcessInput(float dt)
         {
             PlayerO->moveRight(dt);
         }
+
+        if (this->Keys[GLFW_KEY_R])
+        {
+            // toggle wireframe debug drawing
+            m_pDebugDrawer->ToggleDebugFlag(btIDebugDraw::DBG_DrawWireframe);
+        }
+        if (this->Keys[GLFW_KEY_T])
+        {
+            // toggle AABB debug drawing
+            m_pDebugDrawer->ToggleDebugFlag(btIDebugDraw::DBG_DrawAabb);
+        }
     }
 }
 
@@ -232,6 +255,15 @@ void Game::Render()
 
         PlayerO->GetTransform(transform);
         PlayerO->Draw(*AnimationRenderer, transform);
+
+        // after rendering all game objects, perform debug rendering
+        // Bullet will figure out what needs to be drawn then call to
+        // our DebugDrawer class to do the rendering for us
+        Physic->m_pWorld->debugDrawWorld();
+
+        m_pDebugDrawer->Draw(color_shader, camera);
+
+        m_pDebugDrawer->vertices.clear();
     }
 
     if (this->State == GAME_MENU)
