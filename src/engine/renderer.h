@@ -19,7 +19,7 @@ public:
     // Destructor
     ~Renderer();
     // Renders a defined model
-    void Draw(Model *item, btScalar *transform, float size);
+    void Draw(Model *item, btScalar *transform = nullptr);
 private:
     Shader       shader;
     Camera       *camera;

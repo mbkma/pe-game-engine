@@ -5,7 +5,7 @@ BallObject::BallObject(Model *item,
                        const float &mass,
                        const btVector3 &initialPosition,
                        const btQuaternion &initialRotation)
-           :GameObject(item,
+           :PhysicObject(item,
                        pShape,
                        mass,
                        initialPosition,

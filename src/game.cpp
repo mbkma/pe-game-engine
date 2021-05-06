@@ -4,17 +4,19 @@
 #include <filesystem>
 
 #include <engine/camera.h>
+#include <engine/physics.h>
+#include <engine/physic-object.h>
+#include <engine/player-object.h>
+#include <engine/game-object.h>
 #include <engine/resource-manager.h>
 #include <engine/renderer.h>
-#include <engine/game-object.h>
-#include <engine/physics.h>
-#include <engine/player-object.h>
 #include <engine/ball-object.h>
 #include <engine/text-renderer.h>
 
 #include <btBulletCollisionCommon.h>
 
 #include "game.h"
+
 #include "player.h"
 #include "tournament.h"
 
@@ -25,10 +27,12 @@ Physics           *Physic;
 Renderer          *DefaultRenderer;
 Renderer          *AnimationRenderer;
 Camera            *camera;
-GameObject        *PlayerO;
+PlayerObject        *PlayerO;
 GameObject        *Court;
 GameObject        *Stadium;
-GameObject        *Ball;
+PhysicObject        *Ball;
+PhysicObject        *Ground;
+PhysicObject        *Test;
 TextRenderer      *Text;
 std::vector<Player> Players;
 
@@ -63,7 +67,7 @@ void Game::Init()
     ResourceManager::LoadModel(filesystem::path("../src/models/stadium/stadium.obj").c_str(), true, "stadium");
     ResourceManager::LoadModel(filesystem::path("../src/models/court/court.obj").c_str(), true, "court");
     ResourceManager::LoadModel(filesystem::path("../src/models/ball/ball.obj").c_str(), true, "ball");
-    ResourceManager::LoadModel(filesystem::path("../src/models/test/Sketchfab_2019_08_01_13_46_58.gltf").c_str(), true, "player");
+    ResourceManager::LoadModel(filesystem::path("../src/models/test/walk.glb").c_str(), true, "player");
 
     // set camera
     camera = new Camera(glm::vec3(0.0f, 2.0f, 0.0f));
@@ -78,53 +82,60 @@ void Game::Init()
 
     // music
     // all the music is freely available: http://www.manuchao.net/download-here-new-manu-chao-songs
-    music.openFromFile("../src/sounds/fire-inna-streets.wav");
-    music.play();
+//    music.openFromFile("../src/sounds/fire-inna-streets.wav");
+//    music.play();
 
-    // configure game objects
-    Stadium = new GameObject(ResourceManager::GetModel("stadium"),
-                             new btBoxShape(btVector3(50,0,50)),
-                             0.0,
-                             btVector3(0.0f, 0.0f, 0.0f),
-                             btQuaternion(0,0,0,1));
-
-    Court = new GameObject(ResourceManager::GetModel("court"),
-                           new btBoxShape(btVector3(50,0.03f,50)),
-                           0.0,
-                           btVector3(0.0f, 0.0f, 0.0f),
-                           btQuaternion(0,0,0,1));
-
-    Ball = new GameObject(ResourceManager::GetModel("ball"),
-                          new btSphereShape(0.06f),
-                          1.0f,
-                          btVector3(0.0f, 5.0f, 0.0f));
-
-
-    PlayerO = new GameObject(ResourceManager::GetModel("player"),
-                             new btSphereShape(1.0f),
-                             1.0f,
-                             btVector3(-5.0f, 1.0f, 0.0f),
-                             btQuaternion(0,0,1,1));
-
-    ResourceManager::GameObjects["Stadium"] = Stadium;
-    ResourceManager::GameObjects["Court"] = Court;
-    ResourceManager::GameObjects["Ball"] = Ball;
-    ResourceManager::GameObjects["Player"] = PlayerO;
 
     Physic = new Physics();
+
+    // configure game objects
+    Stadium = new GameObject(ResourceManager::GetModel("stadium"));
+
+    Court = new GameObject(ResourceManager::GetModel("court"));
+
+    Ball = new PhysicObject(ResourceManager::GetModel("ball"),
+                            new btSphereShape(0.03f),
+                            0.56f,
+                            btVector3(-5.0f, 5.0f, 0.0f));
+
+    PlayerO = new PlayerObject(ResourceManager::GetModel("player"),
+                               btVector3(-10.0f, 0.0f, -3.0f),
+                               btQuaternion(1,0,0,1),
+                               nullptr);
+
+
+    Ground = new PhysicObject(nullptr,
+                            new btBoxShape(btVector3(50.0f, 50.04f, 50.0f)),
+                            0,
+                            btVector3(0.0f, -50.0f, 0.0f));
+
+    Test = new PhysicObject(nullptr,
+                            new btBoxShape(btVector3(0.1f, 1.0f, 6.0f)),
+                            0,
+                            btVector3(0.0f, 0.0f, 0.0f));
+
+    ResourceManager::PhysicObjects["Ball"] = Ball;
+    ResourceManager::PhysicObjects["Player"] = PlayerO;
+    ResourceManager::PhysicObjects["Ground"] = Ground;
+
 
     // check if the world object is valid
     if (Physic->m_pWorld) {
         // add the object's rigid body to the world
         Physic->m_pWorld->addRigidBody(Ball->GetRigidBody());
-        Physic->m_pWorld->addRigidBody(Court->GetRigidBody());
-        Physic->m_pWorld->addRigidBody(PlayerO->GetRigidBody());
+        Physic->m_pWorld->addRigidBody(Ground->GetRigidBody());
+        Physic->m_pWorld->addRigidBody(Test->GetRigidBody());
+
+        Physic->m_pBroadphase->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
+        Physic->m_pWorld->addCollisionObject(PlayerO->m_ghostObject,btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter|btBroadphaseProxy::DefaultFilter);
+
+        Physic->m_pWorld->addAction(PlayerO->m_character);
     }
 
     // fill player list
     FillPlayerList();
 
-	std::cout << "numaAnim: " << PlayerO->Item->getNumAnimations() << std::endl;
+	std::cout << "numAnim: " << PlayerO->Item->getNumAnimations() << std::endl;
 
 //    Tournament *t = new Tournament("ATP", Players);
 }
@@ -185,14 +196,24 @@ void Game::ProcessInput(float dt)
     }
     if (this->State == GAME_ACTIVE)
     {
+        PlayerO->m_character->setWalkDirection(btVector3(0,0,0));
+
         if (this->Keys[GLFW_KEY_W])
-            camera->ProcessKeyboard(UP, dt);
+        {
+            PlayerO->moveForward(dt);
+        }
         if (this->Keys[GLFW_KEY_S])
-            camera->ProcessKeyboard(DOWN, dt);
+        {
+            PlayerO->moveBackward(dt);
+        }
         if (this->Keys[GLFW_KEY_A])
-            camera->ProcessKeyboard(LEFT, dt);
+        {
+            PlayerO->moveLeft(dt);
+        }
         if (this->Keys[GLFW_KEY_D])
-            camera->ProcessKeyboard(RIGHT, dt);
+        {
+            PlayerO->moveRight(dt);
+        }
     }
 }
 
@@ -205,11 +226,9 @@ void Game::Render()
         Ball->GetTransform(transform);
         Ball->Draw(*DefaultRenderer, transform);
 
-        Court->GetTransform(transform);
-        Court->Draw(*DefaultRenderer, transform);
+        Court->Draw(*DefaultRenderer);
 
-        Stadium->GetTransform(transform);
-        Stadium->Draw(*DefaultRenderer, transform);
+        Stadium->Draw(*DefaultRenderer);
 
         PlayerO->GetTransform(transform);
         PlayerO->Draw(*AnimationRenderer, transform);
@@ -219,10 +238,8 @@ void Game::Render()
     {
         Text->RenderText("Press ENTER to start", 250.0f, this->Height / 2.0f, 1.0f, glm::vec3(0.9f, 0.5f, 0.0f));
         Text->RenderText("Press ESC to exit", 245.0f, this->Height / 2.0f + 20.0f, 0.75f);
-        Court->GetTransform(transform);
-        Court->Draw(*DefaultRenderer, transform);
-        Stadium->GetTransform(transform);
-        Stadium->Draw(*DefaultRenderer, transform);
+        Court->Draw(*DefaultRenderer);
+        Stadium->Draw(*DefaultRenderer);
     }
 
     if (this->State == GAME_WIN)

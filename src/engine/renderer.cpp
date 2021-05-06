@@ -23,7 +23,7 @@ Renderer::~Renderer()
     //TODO
 }
 
-void Renderer::Draw(Model *item, btScalar *transform, float size)
+void Renderer::Draw(Model *item, btScalar *transform)
 {
     // prepare transformations
     this->shader.Use();
@@ -43,9 +43,12 @@ void Renderer::Draw(Model *item, btScalar *transform, float size)
     glm::mat4 view = this->camera->GetViewMatrix();
     this->shader.SetMatrix4("view", view);
 
+
+    glm::mat4 model = glm::mat4(1.0f);
     // model matrix
-    glm::mat4 model = btScalar2mat4(transform);
-    model = glm::scale(model, glm::vec3(size));
+    if (transform != nullptr)
+        model = btScalar2mat4(transform);
+
     this->shader.SetMatrix4("model", model);
 
 //    std::cout<<glm::to_string(model)<<std::endl;
@@ -53,7 +56,7 @@ void Renderer::Draw(Model *item, btScalar *transform, float size)
     if (item->getNumAnimations() > 0)
     {
         std::vector<glm::mat4> Transforms;
-        item->boneTransform((float)glfwGetTime(), Transforms);
+        item->boneTransform((float)glfwGetTime()*20, Transforms);
         this->shader.SetMatrix4v("gBones", Transforms);
     }
 

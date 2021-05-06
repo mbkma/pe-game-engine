@@ -8,7 +8,12 @@ Physics::Physics()
     // create the dispatcher
     m_pDispatcher = new btCollisionDispatcher(m_pCollisionConfiguration);
     // create the broadphase
-    m_pBroadphase = new btDbvtBroadphase();
+//    m_pBroadphase = new btDbvtBroadphase();
+
+	btVector3 worldMin(-1000,-1000,-1000);
+	btVector3 worldMax(1000,1000,1000);
+	m_pBroadphase = new btAxisSweep3(worldMin,worldMax);
+
     // create the constraint solver
     m_pSolver = new btSequentialImpulseConstraintSolver();
     // create the world
@@ -89,8 +94,8 @@ void Physics::CheckForCollisionEvents() {
 
 void Physics::CollisionEvent(btRigidBody * pBody0, btRigidBody * pBody1) {
     // find the two colliding objects
-    GameObject* pObj0 = ResourceManager::FindGameObject(pBody0);
-    GameObject* pObj1 = ResourceManager::FindGameObject(pBody1);
+    PhysicObject* pObj0 = ResourceManager::FindPhysicObject(pBody0);
+    PhysicObject* pObj1 = ResourceManager::FindPhysicObject(pBody1);
 
     // exit if we didn't find anything
     if (!pObj0 || !pObj1) return;
@@ -100,8 +105,8 @@ void Physics::CollisionEvent(btRigidBody * pBody0, btRigidBody * pBody1) {
 
 void Physics::SeparationEvent(btRigidBody * pBody0, btRigidBody * pBody1) {
     // get the two separating objects
-    GameObject* pObj0 = ResourceManager::FindGameObject((btRigidBody*)pBody0);
-    GameObject* pObj1 = ResourceManager::FindGameObject((btRigidBody*)pBody1);
+    PhysicObject* pObj0 = ResourceManager::FindPhysicObject((btRigidBody*)pBody0);
+    PhysicObject* pObj1 = ResourceManager::FindPhysicObject((btRigidBody*)pBody1);
 
     // exit if we didn't find anything
     if (!pObj0 || !pObj1) return;

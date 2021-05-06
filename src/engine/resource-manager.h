@@ -8,7 +8,7 @@
 
 #include "shader.h"
 #include "model.h"
-#include "game-object.h"
+#include "physic-object.h"
 
 #include <btBulletDynamicsCommon.h>
 
@@ -21,7 +21,7 @@ class ResourceManager
 {
 public:
     // resource storage
-    static std::map<std::string, GameObject*>    GameObjects;
+    static std::map<std::string, PhysicObject*>    PhysicObjects;
     static std::map<std::string, Shader>         Shaders;
     static std::map<std::string, Model*>         Models;
 
@@ -40,7 +40,7 @@ public:
     // properly de-allocates all loaded resources
     static void      Clear();
 
-    static GameObject* FindGameObject(btRigidBody* pBody);
+    static PhysicObject* FindPhysicObject(btRigidBody* pBody);
 
 private:
     // private constructor, that is we do not want any actual resource manager objects. Its members and functions should be publicly available (static).

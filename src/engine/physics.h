@@ -1,6 +1,9 @@
 #ifndef PHYSICS_H
 #define PHYSICS_H
-#include "game-object.h"
+
+#include <set>
+
+#include "physic-object.h"
 #include <btBulletDynamicsCommon.h>
 #include <BulletDynamics/Dynamics/btDynamicsWorld.h>
 

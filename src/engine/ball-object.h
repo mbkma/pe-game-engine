@@ -4,11 +4,11 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
-#include "game-object.h"
+#include "physic-object.h"
 
 // BallObject holds the state of the Ball object inheriting
-// relevant state data from GameObject.
-class BallObject : public GameObject
+// relevant state data from PhysicObject.
+class BallObject : public PhysicObject
 {
 public:
     // constructor(s)
