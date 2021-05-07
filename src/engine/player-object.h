@@ -9,6 +9,7 @@
 #include <glm/glm.hpp>
 #include <string>
 
+#include "game.h"
 #include "physic-object.h"
 #include "player.h"
 
@@ -29,13 +30,7 @@ public:
                  const btQuaternion &initialRotation,
                  Player *player);
 
-    void moveForward(float dt);
-
-    void moveBackward(float dt);
-
-    void moveLeft(float dt);
-
-    void moveRight(float dt);
+    void ProcessKeyboard(Direction direction, float dt);
 
     void GetTransform(btScalar* transform) {
         btTransform trans = m_ghostObject->getWorldTransform();

@@ -13,6 +13,7 @@
 #include <engine/ball-object.h>
 #include <engine/text-renderer.h>
 #include <engine/debug-drawer.h>
+#include <engine/skybox.h>
 
 #include <btBulletCollisionCommon.h>
 
@@ -34,10 +35,12 @@ GameObject        *Stadium;
 PhysicObject        *Ball;
 PhysicObject        *Ground;
 PhysicObject        *Test;
+Skybox              *skybox;
 TextRenderer      *Text;
 DebugDrawer* m_pDebugDrawer;
 std::vector<Player> Players;
 Shader color_shader;
+Shader skybox_shader;
 
 Game::Game(unsigned int width, unsigned int height)
     : State(GAME_MENU), Keys(), KeysProcessed(), Width(width), Height(height)
@@ -63,6 +66,7 @@ void Game::Init()
     ResourceManager::LoadShader("../src/shaders/default.vs", "../src/shaders/default.fs", nullptr, "default");
     ResourceManager::LoadShader("../src/shaders/animation.vs", "../src/shaders/default.fs", nullptr, "animation");
     ResourceManager::LoadShader("../src/shaders/colors.vs", "../src/shaders/colors.fs", nullptr, "color");
+    ResourceManager::LoadShader("../src/shaders/skybox.vs", "../src/shaders/skybox.fs", nullptr, "skybox");
     // configure shaders
     // TODO
 
@@ -70,7 +74,7 @@ void Game::Init()
     ResourceManager::LoadModel(filesystem::path("../src/models/stadium/stadium.obj").c_str(), true, "stadium");
     ResourceManager::LoadModel(filesystem::path("../src/models/court/court.obj").c_str(), true, "court");
     ResourceManager::LoadModel(filesystem::path("../src/models/ball/ball.obj").c_str(), true, "ball");
-    ResourceManager::LoadModel(filesystem::path("../src/models/test/walk.glb").c_str(), true, "player");
+    ResourceManager::LoadModel(filesystem::path("../src/models/test/cube.glb").c_str(), true, "player");
 
     // set camera
     camera = new Camera(glm::vec3(0.0f, 2.0f, 0.0f));
@@ -79,6 +83,7 @@ void Game::Init()
     Shader default_shader = ResourceManager::GetShader("default");
     Shader animation_shader = ResourceManager::GetShader("animation");
     color_shader = ResourceManager::GetShader("color");
+    skybox_shader = ResourceManager::GetShader("skybox");
     DefaultRenderer = new Renderer(default_shader, camera);
     AnimationRenderer = new Renderer(animation_shader, camera);
     Text = new TextRenderer(this->Width, this->Height);
@@ -88,6 +93,8 @@ void Game::Init()
     // all the music is freely available: http://www.manuchao.net/download-here-new-manu-chao-songs
 //    music.openFromFile("../src/sounds/fire-inna-streets.wav");
 //    music.play();
+
+    skybox = new Skybox();
 
 
     Physic = new Physics();
@@ -109,9 +116,9 @@ void Game::Init()
 
 
     Ground = new PhysicObject(nullptr,
-                            new btBoxShape(btVector3(50.0f, 50.04f, 50.0f)),
+                            new btBoxShape(btVector3(15.0f, 25.0f, 15.0f)),
                             0,
-                            btVector3(0.0f, -50.0f, 0.0f));
+                            btVector3(0.0f, -25.0f, 0.0f));
 
     Test = new PhysicObject(nullptr,
                             new btBoxShape(btVector3(0.1f, 1.0f, 6.0f)),
@@ -212,20 +219,39 @@ void Game::ProcessInput(float dt)
 
         if (this->Keys[GLFW_KEY_W])
         {
-            PlayerO->moveForward(dt);
+            PlayerO->ProcessKeyboard(UP, dt);
         }
         if (this->Keys[GLFW_KEY_S])
         {
-            PlayerO->moveBackward(dt);
+            PlayerO->ProcessKeyboard(DOWN, dt);
         }
         if (this->Keys[GLFW_KEY_A])
         {
-            PlayerO->moveLeft(dt);
+            PlayerO->ProcessKeyboard(LEFT, dt);
         }
         if (this->Keys[GLFW_KEY_D])
         {
-            PlayerO->moveRight(dt);
+            PlayerO->ProcessKeyboard(RIGHT, dt);
         }
+
+
+        if (this->Keys[GLFW_KEY_G])
+        {
+            camera->ProcessKeyboard(LEFT, dt);
+        }
+        if (this->Keys[GLFW_KEY_J])
+        {
+            camera->ProcessKeyboard(RIGHT, dt);
+        }
+        if (this->Keys[GLFW_KEY_Y])
+        {
+            camera->ProcessKeyboard(UP, dt);
+        }
+        if (this->Keys[GLFW_KEY_H])
+        {
+            camera->ProcessKeyboard(DOWN, dt);
+        }
+
 
         if (this->Keys[GLFW_KEY_R])
         {
@@ -246,15 +272,14 @@ void Game::Render()
 
     if (this->State == GAME_ACTIVE)
     {
+        Court->Draw(*DefaultRenderer);
+        Stadium->Draw(*DefaultRenderer);
+
         Ball->GetTransform(transform);
         Ball->Draw(*DefaultRenderer, transform);
 
-        Court->Draw(*DefaultRenderer);
-
-        Stadium->Draw(*DefaultRenderer);
-
         PlayerO->GetTransform(transform);
-        PlayerO->Draw(*AnimationRenderer, transform);
+        PlayerO->Draw(*DefaultRenderer, transform);
 
         // after rendering all game objects, perform debug rendering
         // Bullet will figure out what needs to be drawn then call to
@@ -264,14 +289,22 @@ void Game::Render()
         m_pDebugDrawer->Draw(color_shader, camera);
 
         m_pDebugDrawer->vertices.clear();
+
+        skybox->Draw(skybox_shader, camera);
     }
 
     if (this->State == GAME_MENU)
     {
+            camera->Yaw = 60.0f;
+            camera->Pitch = -20.0f;
+    camera->updateCameraVectors();
+
         Text->RenderText("Press ENTER to start", 250.0f, this->Height / 2.0f, 1.0f, glm::vec3(0.9f, 0.5f, 0.0f));
         Text->RenderText("Press ESC to exit", 245.0f, this->Height / 2.0f + 20.0f, 0.75f);
         Court->Draw(*DefaultRenderer);
         Stadium->Draw(*DefaultRenderer);
+
+        skybox->Draw(skybox_shader, camera);
     }
 
     if (this->State == GAME_WIN)

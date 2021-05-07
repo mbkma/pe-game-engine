@@ -11,6 +11,7 @@ sources += files(
     'renderer.cpp',
     'resource-manager.cpp',
     'shader.cpp',
+    'skybox.cpp',
     'text-renderer.cpp',
     'glad.c',
 )

@@ -16,7 +16,7 @@ DebugDrawer::DebugDrawer()
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Color));
 
-	glBindVertexArray(0);
+    glBindVertexArray(0);
 }
 
 void DebugDrawer::Draw(Shader &shader,  Camera *camera)
