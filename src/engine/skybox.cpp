@@ -79,7 +79,7 @@ void Skybox::Draw(Shader *shader, Camera *camera)
         shader->Use();
         glm::mat4 view = glm::mat4(glm::mat3(camera->GetViewMatrix())); // remove translation from the view matrix
         shader->SetMatrix4("view", view);
-        glm::mat4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+        glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1600.0f / 900.0f, 0.1f, 100.0f);
         shader->SetMatrix4("projection", projection);
 
         // skybox cube

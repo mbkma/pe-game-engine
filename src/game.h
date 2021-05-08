@@ -42,7 +42,7 @@ public:
     void Init();
     // game loop
     void ProcessInput(float dt);
-    void ProcessMouseMovement(float xoffset, float yoffset);
+    void ProcessMouseMovement(float xoffset, float yoffset, float xpos, float ypos);
     void Update(float dt);
     void Render();
     void RenderShadow();

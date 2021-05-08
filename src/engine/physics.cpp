@@ -1,7 +1,24 @@
 #include "physics.h"
 #include "resource-manager.h"
 
-Physics::Physics()
+// The Width of the screen
+const unsigned int SCREEN_WIDTH = 1600;
+// The height of the screen
+const unsigned int SCREEN_HEIGHT = 900;
+
+
+const float FAR_PLANE = 100.0f;
+const float NEAR_PLANE = 0.1f;
+
+const float FOV = 45.0f;
+
+btVector3 glmTobtVector3(glm::vec3 vec) {
+    return btVector3(
+        vec[0], vec[1], vec[2]);
+}
+
+
+Physics::Physics(Camera *camera) : m_pCamera(camera)
 {
     // create the collision configuration
     m_pCollisionConfiguration = new btDefaultCollisionConfiguration();
@@ -112,4 +129,107 @@ void Physics::SeparationEvent(btRigidBody * pBody0, btRigidBody * pBody1) {
     if (!pObj0 || !pObj1) return;
 
 //    std::cout << "SeparationEvent!" << std::endl;
+}
+
+bool Physics::Raycast(const btVector3 &startPosition, const btVector3 &direction, RayResult &output)
+{
+    if (!m_pWorld)
+        return false;
+
+    // get the picking ray from where we clicked
+    btVector3 rayTo = direction;
+    btVector3 rayFrom = glmTobtVector3(m_pCamera->Position);
+
+    // create our raycast callback object
+    btCollisionWorld::ClosestRayResultCallback rayCallback(rayFrom,rayTo);
+
+    // perform the raycast
+    m_pWorld->rayTest(rayFrom,rayTo,rayCallback);
+
+    std::cout << "hit?" << std::endl;
+
+    // did we hit something?
+    if (rayCallback.hasHit())
+    {
+
+    std::cout << "HIT..." << std::endl;
+
+        // if so, get the rigid body we hit
+        btRigidBody* pBody = (btRigidBody*)btRigidBody::upcast(rayCallback.m_collisionObject);
+        if (!pBody)
+            return false;
+
+        // prevent us from picking objects
+        // like the ground plane
+        if (pBody->isStaticObject() || pBody->isKinematicObject())
+            return false;
+
+    std::cout << "HIT!" << std::endl;
+
+        // set the result data
+        output.pBody = pBody;
+        output.hitPoint = rayCallback.m_hitPointWorld;
+        return true;
+    }
+
+    // we didn't hit anything
+    return false;
+}
+
+btVector3 Physics::GetPickingRay(int x, int y)
+{
+    std::cout << "x " << x << "y " << y << std::endl;
+
+
+    // calculate the field-of-view
+    float tanFov = 1.0f / NEAR_PLANE;
+    float fov = btScalar(2.0) * btAtan(tanFov);
+
+    // get a ray pointing forward from the
+    // camera and extend it to the far plane
+    btVector3 rayFrom = glmTobtVector3(m_pCamera->Position);
+    btVector3 rayForward = -glmTobtVector3(m_pCamera->Position); // ???
+    rayForward.normalize();
+    rayForward*= FAR_PLANE;
+
+    // find the horizontal and vertical vectors
+    // relative to the current camera view
+    btVector3 ver(0.0f, 1.0f, 0.0f);
+    btVector3 hor = rayForward.cross(ver);
+    hor.normalize();
+    ver = hor.cross(rayForward);
+    ver.normalize();
+    hor *= 2.f * FAR_PLANE * tanFov;
+    ver *= 2.f * FAR_PLANE * tanFov;
+
+    // calculate the aspect ratio
+    btScalar aspect = SCREEN_WIDTH / (btScalar)SCREEN_HEIGHT;
+
+    // adjust the forward-ray based on
+    // the X/Y coordinates that were clicked
+    hor*=aspect;
+    btVector3 rayToCenter = rayFrom + rayForward;
+    btVector3 dHor = hor * 1.f/float(SCREEN_WIDTH);
+    btVector3 dVert = ver * 1.f/float(SCREEN_HEIGHT);
+    btVector3 rayTo = rayToCenter - 0.5f * hor + 0.5f * ver;
+    rayTo += btScalar(x) * dHor;
+    rayTo -= btScalar(y) * dVert;
+
+    std::cout << "rayto (" << rayTo.getX() << ", " << rayTo.getY() << ", " << rayTo.getZ() << ")" << std::endl;
+
+    // return the final result
+    return rayTo;
+}
+
+void Physics::Shoot(const btVector3 &direction, btRigidBody *body)
+{
+    // calculate the velocity
+    btVector3 velocity = direction;
+    velocity.normalize();
+    velocity *= 25.0f;
+
+    std::cout << "Test!" << std::endl;
+
+    // set the linear velocity of the box
+    body->setLinearVelocity(velocity);
 }

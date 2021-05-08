@@ -48,12 +48,33 @@ Shader *simpleDepthShader;
 
 Renderer          *renderer;
 
-    unsigned int depthMap;
+unsigned int depthMap;
 const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
-    unsigned int depthMapFBO;
+unsigned int depthMapFBO;
+
+// The Width of the screen
+const float SCREEN_WIDTH = 1600;
+// The height of the screen
+const float SCREEN_HEIGHT = 900;
+
+
+const float FAR_PLANE = 100.0f;
+const float NEAR_PLANE = 0.1f;
+
+const float FOV = 45.0f;
+
+btVector3 toBtVector3(glm::vec3 vec) {
+    return btVector3(
+        vec[0], vec[1], vec[2]);
+}
+
 
 Game::Game(unsigned int width, unsigned int height)
-    : State(GAME_MENU), Keys(), KeysProcessed(), Width(width), Height(height)
+    : State(GAME_MENU),
+      Keys(),
+      KeysProcessed(),
+      Width(width),
+      Height(height)
 {
 
 }
@@ -85,7 +106,7 @@ void Game::Init()
     ResourceManager::LoadModel(filesystem::path("../src/models/stadium/stadium.obj").c_str(), true, "stadium");
     ResourceManager::LoadModel(filesystem::path("../src/models/court/court.obj").c_str(), true, "court");
     ResourceManager::LoadModel(filesystem::path("../src/models/ball/ball.obj").c_str(), true, "ball");
-    ResourceManager::LoadModel(filesystem::path("../src/models/test/cube.glb").c_str(), true, "player");
+    ResourceManager::LoadModel(filesystem::path("../src/models/box/box.obj").c_str(), true, "player");
 
     // set camera
     camera = new Camera(glm::vec3(0.0f, 2.0f, 0.0f));
@@ -113,7 +134,7 @@ void Game::Init()
 
     skybox = new Skybox();
 
-    Physic = new Physics();
+    Physic = new Physics(camera);
 
     // configure game objects
     Stadium = new GameObject(ResourceManager::GetModel("stadium"));
@@ -121,8 +142,8 @@ void Game::Init()
     Court = new GameObject(ResourceManager::GetModel("court"));
 
     Ball = new PhysicObject(ResourceManager::GetModel("ball"),
-                            new btSphereShape(0.03f),
-                            0.56f,
+                            new btSphereShape(3.0f),
+                            1.0f,
                             btVector3(-5.0f, 5.0f, 0.0f));
 
     PlayerO = new PlayerObject(ResourceManager::GetModel("player"),
@@ -132,7 +153,7 @@ void Game::Init()
 
 
     Ground = new PhysicObject(nullptr,
-                            new btBoxShape(btVector3(15.0f, 25.0f, 15.0f)),
+                            new btBoxShape(btVector3(15.0f, 25.05f, 15.0f)),
                             0,
                             btVector3(0.0f, -25.0f, 0.0f));
 
@@ -220,11 +241,19 @@ void Game::Update(float dt)
     }
 }
 
-void Game::ProcessMouseMovement(float xoffset, float yoffset)
+void Game::ProcessMouseMovement(float xoffset, float yoffset, float xpos, float ypos)
 {
     if (this->State == GAME_ACTIVE)
     {
-        camera->ProcessMouseMovement(xoffset, yoffset);
+//        camera->ProcessMouseMovement(xoffset, yoffset);
+
+
+        Physics::RayResult result;
+        btVector3 direction = Physic->GetPickingRay(xpos, ypos);
+        // perform the raycast
+        if (!Physic->Raycast(toBtVector3(camera->Position), direction, result))
+            return; // return if the test failed
+        Physic->Shoot(btVector3(0,1,0), result.pBody);
     }
     if (this->State == GAME_MENU)
     {
@@ -309,8 +338,8 @@ void Game::ProcessInput(float dt)
 void Game::UpdateShaders()
 {
     glm::mat4 view = camera->GetViewMatrix();
-    glm::mat4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
-    glm::vec3 lightPos(-2.0f, 4.0f, -1.0f);
+    glm::mat4 projection = glm::perspective(glm::radians(FOV), SCREEN_WIDTH / SCREEN_HEIGHT, NEAR_PLANE, FAR_PLANE);
+    glm::vec3 lightPos(1.0f, 3.0f, -2.0f);
     glm::mat4 lightProjection, lightView;
     glm::mat4 lightSpaceMatrix;
     float near_plane = 1.0f, far_plane = 7.5f;
@@ -341,7 +370,7 @@ void Game::RenderShadow()
 {
     glCullFace(GL_FRONT);
 
-    glm::vec3 lightPos(-2.0f, 4.0f, -1.0f);
+    glm::vec3 lightPos(1.0f, 3.0f, -2.0f);
     // 1. render depth of scene to texture (from light's perspective)
     // --------------------------------------------------------------
     glm::mat4 lightProjection, lightView;

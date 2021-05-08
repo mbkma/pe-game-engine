@@ -3,15 +3,21 @@
 
 #include <set>
 
-#include "physic-object.h"
 #include <btBulletDynamicsCommon.h>
 #include <BulletDynamics/Dynamics/btDynamicsWorld.h>
 
+#include "physic-object.h"
+#include "camera.h"
+
+
 class Physics
 {
+
 public:
-    Physics();
+    Physics(Camera *camera);
     ~Physics();
+
+    Camera *m_pCamera;
 
     // core Bullet components
     btBroadphaseInterface* m_pBroadphase;
@@ -27,9 +33,17 @@ public:
     // collision event variables
     CollisionPairs m_pairsLastUpdate;
 
+    struct RayResult {
+        btRigidBody* pBody;
+        btVector3 hitPoint;
+    };
+
     void CheckForCollisionEvents();
     void CollisionEvent(btRigidBody * pBody0, btRigidBody * pBody1);
     void SeparationEvent(btRigidBody * pBody0, btRigidBody * pBody1);
+    bool Raycast(const btVector3 &startPosition, const btVector3 &direction, RayResult &output);
+    btVector3 GetPickingRay(int x, int y);
+    void Shoot(const btVector3 &direction, btRigidBody *body);
 };
 
 #endif
