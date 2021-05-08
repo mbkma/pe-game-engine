@@ -45,11 +45,12 @@ public:
     void ProcessMouseMovement(float xoffset, float yoffset);
     void Update(float dt);
     void Render();
-
+    void RenderShadow();
     sf::Music music;
 
 private:
     void FillPlayerList();
+    void UpdateShaders();
 };
 
 #endif

@@ -28,6 +28,7 @@ using namespace std;
 Physics           *Physic;
 Renderer          *DefaultRenderer;
 Renderer          *AnimationRenderer;
+Renderer          *ShadowRenderer;
 Camera            *camera;
 PlayerObject        *PlayerO;
 GameObject        *Court;
@@ -39,8 +40,17 @@ Skybox              *skybox;
 TextRenderer      *Text;
 DebugDrawer* m_pDebugDrawer;
 std::vector<Player> Players;
+Shader *default_shader;
+Shader *animation_shader;
 Shader *color_shader;
 Shader *skybox_shader;
+Shader *simpleDepthShader;
+
+Renderer          *renderer;
+
+    unsigned int depthMap;
+const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+    unsigned int depthMapFBO;
 
 Game::Game(unsigned int width, unsigned int height)
     : State(GAME_MENU), Keys(), KeysProcessed(), Width(width), Height(height)
@@ -67,6 +77,7 @@ void Game::Init()
     ResourceManager::LoadShader("../src/shaders/animation.vs", "../src/shaders/default.fs", nullptr, "animation");
     ResourceManager::LoadShader("../src/shaders/colors.vs", "../src/shaders/colors.fs", nullptr, "color");
     ResourceManager::LoadShader("../src/shaders/skybox.vs", "../src/shaders/skybox.fs", nullptr, "skybox");
+    ResourceManager::LoadShader("../src/shaders/shadow_mapping_depth.vs", "../src/shaders/shadow_mapping_depth.fs", nullptr, "simpleDepthShader");
     // configure shaders
     // TODO
 
@@ -80,14 +91,20 @@ void Game::Init()
     camera = new Camera(glm::vec3(0.0f, 2.0f, 0.0f));
 
     // set render-specific controls
-    Shader *default_shader = ResourceManager::GetShader("default");
-    Shader *animation_shader = ResourceManager::GetShader("animation");
+    default_shader = ResourceManager::GetShader("default");
+    animation_shader = ResourceManager::GetShader("animation");
     color_shader = ResourceManager::GetShader("color");
     skybox_shader = ResourceManager::GetShader("skybox");
+    simpleDepthShader = ResourceManager::GetShader("simpleDepthShader");
     DefaultRenderer = new Renderer(default_shader, camera);
     AnimationRenderer = new Renderer(animation_shader, camera);
+    ShadowRenderer = new Renderer(simpleDepthShader, camera);
     Text = new TextRenderer(this->Width, this->Height);
     Text->Load(filesystem::path("../src/fonts/OCRAEXT.TTF").c_str(), 24);
+
+
+    default_shader->Use();
+    default_shader->SetInteger("shadowMap", 1);
 
     // music
     // all the music is freely available: http://www.manuchao.net/download-here-new-manu-chao-songs
@@ -95,7 +112,6 @@ void Game::Init()
 //    music.play();
 
     skybox = new Skybox();
-
 
     Physic = new Physics();
 
@@ -157,6 +173,30 @@ void Game::Init()
     std::cout << "numAnim: " << PlayerO->Item->getNumAnimations() << std::endl;
 
 //    Tournament *t = new Tournament("ATP", Players);
+
+    // INIT SHADOW
+
+
+    // configure depth map FBO
+    // -----------------------
+
+    glGenFramebuffers(1, &depthMapFBO);
+    // create depth texture
+    glGenTextures(1, &depthMap);
+    glBindTexture(GL_TEXTURE_2D, depthMap);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+    // attach depth texture as FBO's depth buffer
+    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void Game::Update(float dt)
@@ -174,8 +214,8 @@ void Game::Update(float dt)
     }
     if (this->State == GAME_MENU)
     {
-        camera->Position.x = glm::cos((float)glfwGetTime()*0.1f) * 10.0f-10.0f;
-        camera->Position.z = glm::sin((float)glfwGetTime()*0.1f) * 10.0f-20.0f;
+        camera->Position.x = glm::cos((float)glfwGetTime()*0.1f) * 10.0f-40.0f;
+        camera->Position.z = glm::sin((float)glfwGetTime()*0.1f) * 10.0f-40.0f;
         camera->Position.y = 30.0f;
     }
 }
@@ -266,28 +306,91 @@ void Game::ProcessInput(float dt)
     }
 }
 
+void Game::UpdateShaders()
+{
+    glm::mat4 view = camera->GetViewMatrix();
+    glm::mat4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+    glm::vec3 lightPos(-2.0f, 4.0f, -1.0f);
+    glm::mat4 lightProjection, lightView;
+    glm::mat4 lightSpaceMatrix;
+    float near_plane = 1.0f, far_plane = 7.5f;
+    lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+    lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+    lightSpaceMatrix = lightProjection * lightView;
+
+    default_shader->Use();
+    default_shader->SetFloat("material.shininess", 32.0f);
+    default_shader->SetVector3f("dirLight.direction", glm::vec3(-0.2f, -1.0f, -0.3f));
+    default_shader->SetVector3f("dirLight.ambient", glm::vec3(0.05f, 0.05f, 0.05f));
+    default_shader->SetVector3f("dirLight.diffuse", glm::vec3(0.4f, 0.4f, 0.4f));
+    default_shader->SetVector3f("dirLight.specular", glm::vec3(0.5f, 0.5f, 0.5f));
+
+    default_shader->SetVector3f("viewPos", camera->Position);
+    default_shader->SetMatrix4("view", view);
+    default_shader->SetMatrix4("projection", projection);
+
+    default_shader->SetVector3f("lightPos", lightPos);
+    default_shader->SetMatrix4("lightSpaceMatrix", lightSpaceMatrix);
+
+    animation_shader->Use();
+    animation_shader->SetMatrix4("view", view);
+    animation_shader->SetMatrix4("projection", projection);
+}
+
+void Game::RenderShadow()
+{
+    glCullFace(GL_FRONT);
+
+    glm::vec3 lightPos(-2.0f, 4.0f, -1.0f);
+    // 1. render depth of scene to texture (from light's perspective)
+    // --------------------------------------------------------------
+    glm::mat4 lightProjection, lightView;
+    glm::mat4 lightSpaceMatrix;
+    float near_plane = 1.0f, far_plane = 7.5f;
+    lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+    lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+    lightSpaceMatrix = lightProjection * lightView;
+    // render scene from light's point of view
+    simpleDepthShader->Use();
+    simpleDepthShader->SetMatrix4("lightSpaceMatrix", lightSpaceMatrix);
+
+    glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+        glClear(GL_DEPTH_BUFFER_BIT);
+
+        renderer = ShadowRenderer;
+        Render();
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    glCullFace(GL_BACK);
+
+    // reset viewport
+    glViewport(0, 0, 1600, 900);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+
 void Game::Render()
 {
     btScalar transform[16];
 
+    UpdateShaders();
+
     if (this->State == GAME_ACTIVE)
     {
-        Court->Draw(*DefaultRenderer);
-        Stadium->Draw(*DefaultRenderer);
-
+        Court->Draw(*renderer);
+        Stadium->Draw(*renderer);
         Ball->GetTransform(transform);
-        Ball->Draw(*DefaultRenderer, transform);
+        Ball->Draw(*renderer, transform);
 
         PlayerO->GetTransform(transform);
-        PlayerO->Draw(*DefaultRenderer, transform);
+        PlayerO->Draw(*renderer, transform);
 
         // after rendering all game objects, perform debug rendering
         // Bullet will figure out what needs to be drawn then call to
         // our DebugDrawer class to do the rendering for us
         Physic->m_pWorld->debugDrawWorld();
-
         m_pDebugDrawer->Draw(color_shader, camera);
-
         m_pDebugDrawer->vertices.clear();
 
         skybox->Draw(skybox_shader, camera);
@@ -295,16 +398,16 @@ void Game::Render()
 
     if (this->State == GAME_MENU)
     {
-            camera->Yaw = 60.0f;
-            camera->Pitch = -20.0f;
-    camera->updateCameraVectors();
-
         Text->RenderText("Press ENTER to start", 250.0f, this->Height / 2.0f, 1.0f, glm::vec3(0.9f, 0.5f, 0.0f));
         Text->RenderText("Press ESC to exit", 245.0f, this->Height / 2.0f + 20.0f, 0.75f);
-        Court->Draw(*DefaultRenderer);
-        Stadium->Draw(*DefaultRenderer);
 
+        Court->Draw(*renderer);
+        Stadium->Draw(*renderer);
         skybox->Draw(skybox_shader, camera);
+
+        camera->Yaw = 60.0f;
+        camera->Pitch = -20.0f;
+        camera->updateCameraVectors();
     }
 
     if (this->State == GAME_WIN)
@@ -312,6 +415,11 @@ void Game::Render()
         Text->RenderText("You WON!!!", 320.0f, this->Height / 2.0f - 20.0f, 1.0f, glm::vec3(0.0f, 1.0f, 0.0f));
         Text->RenderText("Press ENTER to retry or ESC to quit", 130.0f, this->Height / 2.0f, 1.0f, glm::vec3(1.0f, 1.0f, 0.0f));
     }
+
+    renderer = DefaultRenderer;
+
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, depthMap);
 }
 
 void Game::FillPlayerList()

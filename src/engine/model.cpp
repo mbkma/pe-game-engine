@@ -257,6 +257,8 @@ unsigned int Model::TextureFromFile(const char *path, const string &directory, b
         stbi_image_free(data);
     }
 
+//    std::cout << path << " " << textureID << std::endl;
+
     return textureID;
 }
 

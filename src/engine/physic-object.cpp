@@ -34,6 +34,9 @@ PhysicObject::PhysicObject(Model *item,
     // and shape
     btRigidBody::btRigidBodyConstructionInfo cInfo(mass, m_pMotionState, pShape, localInertia);
 
+    cInfo.m_restitution = 0.8f;
+    cInfo.m_friction = 1.5f;
+
     // create the rigid body
     m_pBody = new btRigidBody(cInfo);
 }
