@@ -19,7 +19,7 @@ Model::Model(string const &path, bool gamma) : gammaCorrection(gamma), m_NumBone
     loadModel(path);
 }
 
-void Model::Draw(Shader &shader)
+void Model::Draw(Shader *shader)
 {
     for(unsigned int i = 0; i < meshes.size(); i++)
         meshes[i].Draw(shader);
@@ -246,7 +246,7 @@ unsigned int Model::TextureFromFile(const char *path, const string &directory, b
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // we dont use the generated mipmaps for now
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
         stbi_image_free(data);

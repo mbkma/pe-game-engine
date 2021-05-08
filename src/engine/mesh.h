@@ -48,7 +48,7 @@ public:
     Mesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures);
 
     // render the mesh
-    void Draw(Shader &shader);
+    void Draw(Shader *shader);
 
 private:
     // render data

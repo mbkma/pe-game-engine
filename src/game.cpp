@@ -39,8 +39,8 @@ Skybox              *skybox;
 TextRenderer      *Text;
 DebugDrawer* m_pDebugDrawer;
 std::vector<Player> Players;
-Shader color_shader;
-Shader skybox_shader;
+Shader *color_shader;
+Shader *skybox_shader;
 
 Game::Game(unsigned int width, unsigned int height)
     : State(GAME_MENU), Keys(), KeysProcessed(), Width(width), Height(height)
@@ -80,8 +80,8 @@ void Game::Init()
     camera = new Camera(glm::vec3(0.0f, 2.0f, 0.0f));
 
     // set render-specific controls
-    Shader default_shader = ResourceManager::GetShader("default");
-    Shader animation_shader = ResourceManager::GetShader("animation");
+    Shader *default_shader = ResourceManager::GetShader("default");
+    Shader *animation_shader = ResourceManager::GetShader("animation");
     color_shader = ResourceManager::GetShader("color");
     skybox_shader = ResourceManager::GetShader("skybox");
     DefaultRenderer = new Renderer(default_shader, camera);

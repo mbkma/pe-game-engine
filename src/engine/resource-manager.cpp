@@ -6,17 +6,17 @@
 
 // Instantiate static variables
 std::map<std::string, Model*>        ResourceManager::Models;
-std::map<std::string, Shader>        ResourceManager::Shaders;
+std::map<std::string, Shader*>        ResourceManager::Shaders;
 std::map<std::string, PhysicObject*>   ResourceManager::PhysicObjects;
 
 
-Shader ResourceManager::LoadShader(const char *vShaderFile, const char *fShaderFile, const char *gShaderFile, std::string name)
+Shader* ResourceManager::LoadShader(const char *vShaderFile, const char *fShaderFile, const char *gShaderFile, std::string name)
 {
     Shaders[name] = loadShaderFromFile(vShaderFile, fShaderFile, gShaderFile);
     return Shaders[name];
 }
 
-Shader ResourceManager::GetShader(std::string name)
+Shader* ResourceManager::GetShader(std::string name)
 {
     return Shaders[name];
 }
@@ -36,12 +36,12 @@ void ResourceManager::Clear()
 {
     // (properly) delete all shaders
     for (auto iter : Shaders)
-        glDeleteProgram(iter.second.ID);
+        glDeleteProgram(iter.second->ID);
     // (properly) delete all models
     //TODO
 }
 
-Shader ResourceManager::loadShaderFromFile(const char *vShaderFile, const char *fShaderFile, const char *gShaderFile)
+Shader* ResourceManager::loadShaderFromFile(const char *vShaderFile, const char *fShaderFile, const char *gShaderFile)
 {
     // 1. retrieve the vertex/fragment source code from filePath
     std::string vertexCode;
@@ -82,8 +82,8 @@ Shader ResourceManager::loadShaderFromFile(const char *vShaderFile, const char *
     const char *gShaderCode = geometryCode.c_str();
 
     // 2. now create shader object from source code
-    Shader shader;
-    shader.Compile(vShaderCode, fShaderCode, gShaderFile != nullptr ? gShaderCode : nullptr);
+    Shader *shader = new Shader();
+    shader->Compile(vShaderCode, fShaderCode, gShaderFile != nullptr ? gShaderCode : nullptr);
     return shader;
 }
 

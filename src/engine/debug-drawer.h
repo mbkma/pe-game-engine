@@ -32,7 +32,7 @@ public:
 
 	unsigned i = 0;
 
-    void Draw(Shader &shader,  Camera *camera);
+    void Draw(Shader *shader,  Camera *camera);
 
     struct Vertex {
         // position

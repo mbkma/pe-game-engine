@@ -15,13 +15,13 @@ class Renderer
 {
 public:
     // Constructor (inits shaders/shapes)
-    Renderer(Shader &shader,  Camera *camera);
+    Renderer(Shader *shader,  Camera *camera);
     // Destructor
     ~Renderer();
     // Renders a defined model
     void Draw(Model *item, btScalar *transform = nullptr);
 private:
-    Shader       shader;
+    Shader       *shader;
     Camera       *camera;
 };
 
