@@ -47,6 +47,8 @@ uniform vec3 lightColor;
 uniform vec3 viewPos;
 uniform vec3 lightPos; // used to simulate a DirLight position for shadow
 
+uniform int shadow = 0;
+
 float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightdir)
 {
     // perform perspective divide
@@ -95,9 +97,13 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
     vec3 specular = light.specular * spec * vec3(texture(material.texture_specular1, TexCoords));
 
+    vec3 lighting = ambient + diffuse + specular;
     // calculate shadow
-    float shadow = ShadowCalculation(FragPosLightSpace, normal, lightDir);
-    vec3 lighting = ambient + (1.0 - shadow) * (diffuse + specular);
+    if (shadow == 1)
+    {
+        float shadow = ShadowCalculation(FragPosLightSpace, normal, lightDir);
+        lighting = ambient + (1.0 - shadow) * (diffuse + specular);
+    }
 
     return lighting;
 }

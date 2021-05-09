@@ -63,6 +63,9 @@ const float NEAR_PLANE = 0.1f;
 
 const float FOV = 45.0f;
 
+bool shadow = false;
+
+
 btVector3 toBtVector3(glm::vec3 vec) {
     return btVector3(
         vec[0], vec[1], vec[2]);
@@ -105,8 +108,8 @@ void Game::Init()
     // load models
     ResourceManager::LoadModel(filesystem::path("../src/models/stadium/stadium.obj").c_str(), true, "stadium");
     ResourceManager::LoadModel(filesystem::path("../src/models/court/court.obj").c_str(), true, "court");
-    ResourceManager::LoadModel(filesystem::path("../src/models/ball/ball.obj").c_str(), true, "ball");
-    ResourceManager::LoadModel(filesystem::path("../src/models/box/box.obj").c_str(), true, "player");
+    ResourceManager::LoadModel(filesystem::path("../src/models/ball/ball1.obj").c_str(), true, "ball");
+    ResourceManager::LoadModel(filesystem::path("../src/models/player/male-01-nude.dae").c_str(), true, "player");
 
     // set camera
     camera = new Camera(glm::vec3(0.0f, 2.0f, 0.0f));
@@ -142,7 +145,7 @@ void Game::Init()
     Court = new GameObject(ResourceManager::GetModel("court"));
 
     Ball = new PhysicObject(ResourceManager::GetModel("ball"),
-                            new btSphereShape(3.0f),
+                            new btSphereShape(0.05f),
                             1.0f,
                             btVector3(-5.0f, 5.0f, 0.0f));
 
@@ -180,6 +183,8 @@ void Game::Init()
         Physic->m_pWorld->addAction(PlayerO->m_character);
     }
 
+    renderer = DefaultRenderer;
+
     // create the debug drawer
     m_pDebugDrawer = new DebugDrawer();
     // set the initial debug level to 0
@@ -195,29 +200,31 @@ void Game::Init()
 
 //    Tournament *t = new Tournament("ATP", Players);
 
-    // INIT SHADOW
+    if (shadow)
+    {
+        // INIT SHADOW
 
+        // configure depth map FBO
+        // -----------------------
 
-    // configure depth map FBO
-    // -----------------------
-
-    glGenFramebuffers(1, &depthMapFBO);
-    // create depth texture
-    glGenTextures(1, &depthMap);
-    glBindTexture(GL_TEXTURE_2D, depthMap);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-    float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
-    // attach depth texture as FBO's depth buffer
-    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
-    glDrawBuffer(GL_NONE);
-    glReadBuffer(GL_NONE);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glGenFramebuffers(1, &depthMapFBO);
+        // create depth texture
+        glGenTextures(1, &depthMap);
+        glBindTexture(GL_TEXTURE_2D, depthMap);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+        float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+        glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+        // attach depth texture as FBO's depth buffer
+        glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+        glDrawBuffer(GL_NONE);
+        glReadBuffer(GL_NONE);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
 }
 
 void Game::Update(float dt)
@@ -245,15 +252,15 @@ void Game::ProcessMouseMovement(float xoffset, float yoffset, float xpos, float 
 {
     if (this->State == GAME_ACTIVE)
     {
-//        camera->ProcessMouseMovement(xoffset, yoffset);
+        camera->ProcessMouseMovement(xoffset, yoffset);
 
+//            Physics::RayResult result;
+//            btVector3 direction = Physic->GetPickingRay(xpos, ypos);
+//            // perform the raycast
+//            if (!Physic->Raycast(toBtVector3(camera->Position), direction, nullptr))
+//                return; // return if the test failed
+//            Physic->Shoot(btVector3(1,0,0), Physic->pBody);
 
-        Physics::RayResult result;
-        btVector3 direction = Physic->GetPickingRay(xpos, ypos);
-        // perform the raycast
-        if (!Physic->Raycast(toBtVector3(camera->Position), direction, result))
-            return; // return if the test failed
-        Physic->Shoot(btVector3(0,1,0), result.pBody);
     }
     if (this->State == GAME_MENU)
     {
@@ -285,6 +292,13 @@ void Game::ProcessInput(float dt)
     if (this->State == GAME_ACTIVE)
     {
         PlayerO->m_character->setWalkDirection(btVector3(0,0,0));
+
+
+        if (this->Keys[GLFW_KEY_F] && !this->KeysProcessed[GLFW_KEY_F])
+        {
+            shadow = !shadow;
+            this->KeysProcessed[GLFW_KEY_F] = true;
+        }
 
         if (this->Keys[GLFW_KEY_W])
         {
@@ -322,13 +336,15 @@ void Game::ProcessInput(float dt)
         }
 
 
-        if (this->Keys[GLFW_KEY_R])
+        if (this->Keys[GLFW_KEY_R] && !this->KeysProcessed[GLFW_KEY_R])
         {
+            this->KeysProcessed[GLFW_KEY_R] = true;
             // toggle wireframe debug drawing
             m_pDebugDrawer->ToggleDebugFlag(btIDebugDraw::DBG_DrawWireframe);
         }
-        if (this->Keys[GLFW_KEY_T])
+        if (this->Keys[GLFW_KEY_T] && !this->KeysProcessed[GLFW_KEY_T])
         {
+            this->KeysProcessed[GLFW_KEY_T] = true;
             // toggle AABB debug drawing
             m_pDebugDrawer->ToggleDebugFlag(btIDebugDraw::DBG_DrawAabb);
         }
@@ -344,10 +360,13 @@ void Game::UpdateShaders()
     glm::mat4 lightSpaceMatrix;
     float near_plane = 1.0f, far_plane = 7.5f;
     lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
-    lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+    lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     lightSpaceMatrix = lightProjection * lightView;
 
     default_shader->Use();
+
+    shadow ? default_shader->SetInteger("shadow", 1) : default_shader->SetInteger("shadow", 0);
+    default_shader->SetVector3f("viewPos", camera->Position);
     default_shader->SetFloat("material.shininess", 32.0f);
     default_shader->SetVector3f("dirLight.direction", glm::vec3(-0.2f, -1.0f, -0.3f));
     default_shader->SetVector3f("dirLight.ambient", glm::vec3(0.05f, 0.05f, 0.05f));
@@ -368,6 +387,9 @@ void Game::UpdateShaders()
 
 void Game::RenderShadow()
 {
+    if (!shadow)
+        return;
+
     glCullFace(GL_FRONT);
 
     glm::vec3 lightPos(1.0f, 3.0f, -2.0f);
@@ -377,7 +399,7 @@ void Game::RenderShadow()
     glm::mat4 lightSpaceMatrix;
     float near_plane = 1.0f, far_plane = 7.5f;
     lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
-    lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+    lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     lightSpaceMatrix = lightProjection * lightView;
     // render scene from light's point of view
     simpleDepthShader->Use();

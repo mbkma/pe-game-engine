@@ -44,18 +44,20 @@ void Shader::Compile(const char* vertexSource, const char* fragmentSource, const
         glDeleteShader(gShader);
 }
 
-void Shader::SetFloat(const char *name, float value, bool useShader)
-{
-    if (useShader)
-        this->Use();
-    glUniform1f(glGetUniformLocation(this->ID, name), value);
-}
 void Shader::SetInteger(const char *name, int value, bool useShader)
 {
     if (useShader)
         this->Use();
     glUniform1i(glGetUniformLocation(this->ID, name), value);
 }
+
+void Shader::SetFloat(const char *name, float value, bool useShader)
+{
+    if (useShader)
+        this->Use();
+    glUniform1f(glGetUniformLocation(this->ID, name), value);
+}
+
 void Shader::SetVector2f(const char *name, float x, float y, bool useShader)
 {
     if (useShader)

@@ -27,9 +27,9 @@ Physics::Physics(Camera *camera) : m_pCamera(camera)
     // create the broadphase
 //    m_pBroadphase = new btDbvtBroadphase();
 
-	btVector3 worldMin(-1000,-1000,-1000);
-	btVector3 worldMax(1000,1000,1000);
-	m_pBroadphase = new btAxisSweep3(worldMin,worldMax);
+    btVector3 worldMin(-1000,-1000,-1000);
+    btVector3 worldMax(1000,1000,1000);
+    m_pBroadphase = new btAxisSweep3(worldMin,worldMax);
 
     // create the constraint solver
     m_pSolver = new btSequentialImpulseConstraintSolver();
@@ -131,14 +131,16 @@ void Physics::SeparationEvent(btRigidBody * pBody0, btRigidBody * pBody1) {
 //    std::cout << "SeparationEvent!" << std::endl;
 }
 
-bool Physics::Raycast(const btVector3 &startPosition, const btVector3 &direction, RayResult &output)
+bool Physics::Raycast(const btVector3 &startPosition, const btVector3 &direction,         btRigidBody* pB)
 {
     if (!m_pWorld)
         return false;
 
     // get the picking ray from where we clicked
     btVector3 rayTo = direction;
-    btVector3 rayFrom = glmTobtVector3(m_pCamera->Position);
+    btVector3 rayFrom = startPosition;
+
+    m_pWorld->getDebugDrawer()->drawLine(rayFrom, rayTo, btVector4(0, 0, 0, 1));
 
     // create our raycast callback object
     btCollisionWorld::ClosestRayResultCallback rayCallback(rayFrom,rayTo);
@@ -152,23 +154,26 @@ bool Physics::Raycast(const btVector3 &startPosition, const btVector3 &direction
     if (rayCallback.hasHit())
     {
 
-    std::cout << "HIT..." << std::endl;
+    std::cout << "hasHit..." << std::endl;
 
         // if so, get the rigid body we hit
-        btRigidBody* pBody = (btRigidBody*)btRigidBody::upcast(rayCallback.m_collisionObject);
+        pBody = (btRigidBody*)btRigidBody::upcast(rayCallback.m_collisionObject);
         if (!pBody)
+        {
+            std::cout << "no pBody..." << std::endl;
             return false;
-
+        }
         // prevent us from picking objects
         // like the ground plane
         if (pBody->isStaticObject() || pBody->isKinematicObject())
+        {
+            std::cout << "static or kinematic..." << std::endl;
             return false;
+        }
 
     std::cout << "HIT!" << std::endl;
 
-        // set the result data
-        output.pBody = pBody;
-        output.hitPoint = rayCallback.m_hitPointWorld;
+//        output.hitPoint = rayCallback.m_hitPointWorld;
         return true;
     }
 
@@ -181,44 +186,77 @@ btVector3 Physics::GetPickingRay(int x, int y)
     std::cout << "x " << x << "y " << y << std::endl;
 
 
-    // calculate the field-of-view
-    float tanFov = 1.0f / NEAR_PLANE;
-    float fov = btScalar(2.0) * btAtan(tanFov);
+//    // calculate the field-of-view
+//    float tanFov = 1.0f / NEAR_PLANE;
+//    float fov = btScalar(2.0) * btAtan(tanFov);
 
-    // get a ray pointing forward from the
-    // camera and extend it to the far plane
-    btVector3 rayFrom = glmTobtVector3(m_pCamera->Position);
-    btVector3 rayForward = -glmTobtVector3(m_pCamera->Position); // ???
-    rayForward.normalize();
-    rayForward*= FAR_PLANE;
+//    // get a ray pointing forward from the
+//    // camera and extend it to the far plane
+//    btVector3 rayFrom = glmTobtVector3(m_pCamera->Position);
+//    btVector3 rayForward = -glmTobtVector3(m_pCamera->Position); // ???
+//    rayForward.normalize();
+//    rayForward*= FAR_PLANE;
 
-    // find the horizontal and vertical vectors
-    // relative to the current camera view
-    btVector3 ver(0.0f, 1.0f, 0.0f);
-    btVector3 hor = rayForward.cross(ver);
-    hor.normalize();
-    ver = hor.cross(rayForward);
-    ver.normalize();
-    hor *= 2.f * FAR_PLANE * tanFov;
-    ver *= 2.f * FAR_PLANE * tanFov;
+//    // find the horizontal and vertical vectors
+//    // relative to the current camera view
+//    btVector3 ver(0.0f, 1.0f, 0.0f);
+//    btVector3 hor = rayForward.cross(ver);
+//    hor.normalize();
+//    ver = hor.cross(rayForward);
+//    ver.normalize();
+//    hor *= 2.f * FAR_PLANE * tanFov;
+//    ver *= 2.f * FAR_PLANE * tanFov;
 
-    // calculate the aspect ratio
-    btScalar aspect = SCREEN_WIDTH / (btScalar)SCREEN_HEIGHT;
+//    // calculate the aspect ratio
+//    btScalar aspect = SCREEN_WIDTH / (btScalar)SCREEN_HEIGHT;
 
-    // adjust the forward-ray based on
-    // the X/Y coordinates that were clicked
-    hor*=aspect;
-    btVector3 rayToCenter = rayFrom + rayForward;
-    btVector3 dHor = hor * 1.f/float(SCREEN_WIDTH);
-    btVector3 dVert = ver * 1.f/float(SCREEN_HEIGHT);
-    btVector3 rayTo = rayToCenter - 0.5f * hor + 0.5f * ver;
-    rayTo += btScalar(x) * dHor;
-    rayTo -= btScalar(y) * dVert;
+//    // adjust the forward-ray based on
+//    // the X/Y coordinates that were clicked
+//    hor*=aspect;
+//    btVector3 rayToCenter = rayFrom + rayForward;
+//    btVector3 dHor = hor * 1.f/float(SCREEN_WIDTH);
+//    btVector3 dVert = ver * 1.f/float(SCREEN_HEIGHT);
+//    btVector3 rayTo = rayToCenter - 0.5f * hor + 0.5f * ver;
+//    rayTo += btScalar(x) * dHor;
+//    rayTo -= btScalar(y) * dVert;
 
-    std::cout << "rayto (" << rayTo.getX() << ", " << rayTo.getY() << ", " << rayTo.getZ() << ")" << std::endl;
+
+
+
+    // The ray Start and End positions, in Normalized Device Coordinates (Have you read Tutorial 4 ?)
+    glm::vec4 lRayStart_NDC(
+        ((float)2.0f*x/(float)SCREEN_WIDTH  - 1.0f), // [0,1024] -> [-1,1]
+        1.0f - (float)2.0f*y/(float)SCREEN_HEIGHT, // [0, 768] -> [-1,1]
+        -1.0, // The near plane maps to Z=-1 in Normalized Device Coordinates
+        1.0f
+    );
+    glm::vec4 lRayEnd_NDC(
+        ((float)y/(float)SCREEN_WIDTH  - 0.5f) * 2.0f,
+        ((float)y/(float)SCREEN_HEIGHT - 0.5f) * 2.0f,
+        0.0,
+        1.0f
+    );
+
+    glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1600.0f / 900.0f, 0.1f, 100.0f);
+    glm::mat4 InverseProjectionMatrix = glm::inverse(projection);
+
+    // The View Matrix goes from World Space to Camera Space.
+    // So inverse(ViewMatrix) goes from Camera Space to World Space.
+    glm::mat4 InverseViewMatrix = glm::inverse(m_pCamera->GetViewMatrix());
+
+    glm::vec4 lRayStart_camera = InverseProjectionMatrix * lRayStart_NDC;
+    lRayStart_camera = glm::vec4(glm::vec2(lRayStart_camera), -1.0, 0.0);
+    glm::vec3 lRayStart_world  = glm::vec3((InverseViewMatrix       * lRayStart_camera));
+    glm::vec4 lRayEnd_camera   = InverseProjectionMatrix * lRayEnd_NDC;
+    glm::vec4 lRayEnd_world    = InverseViewMatrix       * lRayEnd_camera;
+
+//    glm::vec3 lRayDir_world(lRayEnd_world - lRayStart_world);
+    lRayStart_world = glm::normalize(lRayStart_world);
+
+//    std::cout << "rayto (" << lRayDir_world[0] << ", " << lRayDir_world[1] << ", " << lRayDir_world[2] << ")" << std::endl;
 
     // return the final result
-    return rayTo;
+    return glmTobtVector3(lRayStart_world);
 }
 
 void Physics::Shoot(const btVector3 &direction, btRigidBody *body)
@@ -231,5 +269,8 @@ void Physics::Shoot(const btVector3 &direction, btRigidBody *body)
     std::cout << "Test!" << std::endl;
 
     // set the linear velocity of the box
-    body->setLinearVelocity(velocity);
+    if (body)
+        body->setLinearVelocity(velocity);
+    else
+        std::cout << "No body :(" << std::endl;
 }
