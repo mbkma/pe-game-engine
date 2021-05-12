@@ -41,8 +41,6 @@ uniform DirLight dirLight;
 uniform PointLight pointLights[NR_POINT_LIGHTS];
 uniform sampler2D shadowMap;
 uniform Material material;
-uniform vec3 objectColor;
-uniform vec3 lightColor;
 
 uniform vec3 viewPos;
 uniform vec3 lightPos; // used to simulate a DirLight position for shadow

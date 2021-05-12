@@ -8,7 +8,6 @@
 
 #include "shader.h"
 
-
 /// Holds all state information relevant to a character as loaded using FreeType
 struct Character {
     unsigned int TextureID; // ID handle of the glyph texture

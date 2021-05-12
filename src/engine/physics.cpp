@@ -1,5 +1,4 @@
 #include "physics.h"
-#include "resource-manager.h"
 
 // The Width of the screen
 const unsigned int SCREEN_WIDTH = 1600;
@@ -18,7 +17,7 @@ btVector3 glmTobtVector3(glm::vec3 vec) {
 }
 
 
-Physics::Physics(Camera *camera) : m_pCamera(camera)
+Physics::Physics()
 {
     // create the collision configuration
     m_pCollisionConfiguration = new btDefaultCollisionConfiguration();
@@ -45,6 +44,75 @@ Physics::~Physics()
     delete m_pDispatcher;
     delete m_pCollisionConfiguration;
 }
+
+Physic::AddSphere() // TODO
+{
+    // create the initial transform
+    btTransform transform;
+    transform.setIdentity();
+
+    // TODO set default location and orient from graphic position
+    transform.setOrigin(initialPosition);
+//    transform.setRotation(initialRotation);
+
+    // create the motion state from the
+    // initial transform
+    m_pMotionState = new btDefaultMotionState(transform);
+
+    // calculate the local inertia
+    btVector3 localInertia(0,0,0);
+
+    // objects of infinite mass can't
+    // move or rotate
+    if (mass != 0.0f) {
+        pShape->calculateLocalInertia(mass, localInertia);
+    }
+
+    // create the rigid body construction
+    // info using the mass, motion state
+    // and shape
+    btRigidBody::btRigidBodyConstructionInfo m_pInfo(mass, m_pMotionState, pShape, localInertia);
+
+    // create the rigid body
+    m_pBody = new btRigidBody(m_pInfo);
+
+    // store the shape for later usage
+    m_pShape = pShape;
+
+    m_pWorld->addRigidBody(this->GetRigidBody());
+}
+
+Physic::AddController()
+{
+    // create the initial transform
+    btTransform transform;
+    transform.setIdentity();
+    transform.setOrigin(initialPosition);
+    transform.setRotation(initialRotation);
+
+    m_ghostObject = new btPairCachingGhostObject();
+    m_ghostObject->setWorldTransform(transform);
+
+    btScalar characterHeight=1.8;
+    btScalar characterWidth =0.3;
+
+    btConvexShape* capsule = new btCapsuleShape(characterWidth,characterHeight);
+    m_ghostObject->setCollisionShape (capsule);
+    m_ghostObject->setCollisionFlags (btCollisionObject::CF_CHARACTER_OBJECT);
+
+    m_pShape = capsule;
+
+    btScalar stepHeight = btScalar(0.1);
+    m_character = new btKinematicCharacterController (m_ghostObject,capsule,stepHeight);
+    m_character->setUp(btVector3(0,1,0));
+
+
+    m_pBroadphase->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
+    m_pWorld->addCollisionObject(PlayerO->m_ghostObject,btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter|btBroadphaseProxy::DefaultFilter);
+
+    m_pWorld->addAction(PlayerO->m_character);
+}
+
 
 void Physics::CheckForCollisionEvents() {
     // keep a list of the collision pairs we
@@ -111,8 +179,8 @@ void Physics::CheckForCollisionEvents() {
 
 void Physics::CollisionEvent(btRigidBody * pBody0, btRigidBody * pBody1) {
     // find the two colliding objects
-    PhysicObject* pObj0 = ResourceManager::FindPhysicObject(pBody0);
-    PhysicObject* pObj1 = ResourceManager::FindPhysicObject(pBody1);
+    Actor* pObj0 = FindActorByPhysic(pBody0);
+    Actor* pObj1 = FindActorByPhysic(pBody1);
 
     // exit if we didn't find anything
     if (!pObj0 || !pObj1) return;
@@ -122,8 +190,8 @@ void Physics::CollisionEvent(btRigidBody * pBody0, btRigidBody * pBody1) {
 
 void Physics::SeparationEvent(btRigidBody * pBody0, btRigidBody * pBody1) {
     // get the two separating objects
-    PhysicObject* pObj0 = ResourceManager::FindPhysicObject((btRigidBody*)pBody0);
-    PhysicObject* pObj1 = ResourceManager::FindPhysicObject((btRigidBody*)pBody1);
+    Actor* pObj0 = FindActorByPhysic((btRigidBody*)pBody0);
+    Actor* pObj1 = FindActorByPhysic((btRigidBody*)pBody1);
 
     // exit if we didn't find anything
     if (!pObj0 || !pObj1) return;
@@ -131,7 +199,7 @@ void Physics::SeparationEvent(btRigidBody * pBody0, btRigidBody * pBody1) {
 //    std::cout << "SeparationEvent!" << std::endl;
 }
 
-bool Physics::Raycast(const btVector3 &startPosition, const btVector3 &direction,         btRigidBody* pB)
+bool Physics::Raycast(const btVector3 &startPosition, const btVector3 &direction, btRigidBody* pB)
 {
     if (!m_pWorld)
         return false;
@@ -273,4 +341,19 @@ void Physics::Shoot(const btVector3 &direction, btRigidBody *body)
         body->setLinearVelocity(velocity);
     else
         std::cout << "No body :(" << std::endl;
+}
+
+Actor* Physics::FindActorByPhysic(btRigidBody* pBody)
+{
+    // search through our list of Actors finding
+    // the one with a rigid body that matches the given one
+//    for (auto iter : m_gameObjects)
+//    {
+//        if (iter.second->GetRigidBody() == pBody)
+//        {
+//            // found the body, so return the corresponding game object
+//            return iter.second;
+//        }
+//    }
+//    return 0;
 }

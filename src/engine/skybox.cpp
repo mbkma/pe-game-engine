@@ -2,6 +2,8 @@
 
 #include <filesystem>
 
+//#include "resource-manager.cpp"
+
 
 float skyboxVertices[] = {
     // positions
@@ -48,7 +50,7 @@ float skyboxVertices[] = {
      1.0f, -1.0f,  1.0f
 };
 
-Skybox::Skybox()
+Skybox::Skybox(std::string path)
 {
     glGenVertexArrays(1, &skyboxVAO);
     glGenBuffers(1, &skyboxVBO);
@@ -61,26 +63,28 @@ Skybox::Skybox()
 
     std::vector<std::string> faces
     {
-        std::filesystem::path("../src/models/skybox/right.jpg"),
-        std::filesystem::path("../src/models/skybox/left.jpg"),
-        std::filesystem::path("../src/models/skybox/top.jpg"),
-        std::filesystem::path("../src/models/skybox/bottom.jpg"),
-        std::filesystem::path("../src/models/skybox/back.jpg"),
-        std::filesystem::path("../src/models/skybox/front.jpg")
+        std::filesystem::path(path + "right.jpg"),
+        std::filesystem::path(path + "left.jpg"),
+        std::filesystem::path(path + "top.jpg"),
+        std::filesystem::path(path + "bottom.jpg"),
+        std::filesystem::path(path + "back.jpg"),
+        std::filesystem::path(path + "front.jpg")
     };
     cubemapTexture = loadCubemap(faces);
+
+//    m_pSkyboxShader = ResourceManager::LoadShader("../src/shaders/skybox.vs", "../src/shaders/skybox.fs", nullptr, "skybox");
 }
 
-void Skybox::Draw(Shader *shader, Camera *camera)
+void Skybox::draw()
 {
         // draw skybox as last
         glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
 
-        shader->Use();
-        glm::mat4 view = glm::mat4(glm::mat3(camera->GetViewMatrix())); // remove translation from the view matrix
-        shader->SetMatrix4("view", view);
+        m_pSkyboxShader->Use();
+        glm::mat4 view = glm::mat4(glm::mat3(m_pCamera->GetViewMatrix())); // remove translation from the view matrix
+        m_pSkyboxShader->SetMatrix4("view", view);
         glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1600.0f / 900.0f, 0.1f, 100.0f);
-        shader->SetMatrix4("projection", projection);
+        m_pSkyboxShader->SetMatrix4("projection", projection);
 
         // skybox cube
         glBindVertexArray(skyboxVAO);

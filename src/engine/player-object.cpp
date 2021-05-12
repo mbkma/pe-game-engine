@@ -1,19 +1,16 @@
-
-
-#include "physics.h"
-#include "game.h"
-
 #include "player-object.h"
 
-PlayerObject::PlayerObject(Model *item,
-                           const btVector3 &initialPosition,
-                           const btQuaternion &initialRotation,
-                           Player *player)
+#include "physics.h"
 
-                          :PhysicObject()
+PlayerObject::PlayerObject(Model *item)
+
+                          :GameObject(item)
 {
-    Item = item;
 
+}
+
+void PlayerObject::createController(btVector3 initialPosition, btQuaternion initialRotation)
+{
     // create the initial transform
     btTransform transform;
     transform.setIdentity();
@@ -22,7 +19,6 @@ PlayerObject::PlayerObject(Model *item,
 
     m_ghostObject = new btPairCachingGhostObject();
     m_ghostObject->setWorldTransform(transform);
-
 
     btScalar characterHeight=1.8;
     btScalar characterWidth =0.3;
@@ -36,8 +32,6 @@ PlayerObject::PlayerObject(Model *item,
     btScalar stepHeight = btScalar(0.1);
     m_character = new btKinematicCharacterController (m_ghostObject,capsule,stepHeight);
     m_character->setUp(btVector3(0,1,0));
-
-    m_Player = player;
 }
 
 void PlayerObject::ProcessKeyboard(Direction direction, float dt)

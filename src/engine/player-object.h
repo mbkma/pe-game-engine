@@ -9,32 +9,28 @@
 #include <glm/glm.hpp>
 #include <string>
 
-#include "game.h"
-#include "physic-object.h"
-#include "player.h"
+#include "global.h" // for enum
+#include "game-object.h"
 
 class btCharacterControllerInterface;
 class btKinematicCharacterController;
 
-class PlayerObject : public PhysicObject
+class PlayerObject : public GameObject
 {
 public:
-    Player *m_Player;
-
-	btKinematicCharacterController* m_character;
-	class	btPairCachingGhostObject* m_ghostObject;
+    btKinematicCharacterController* m_character;
+    class btPairCachingGhostObject* m_ghostObject;
 
     // constructor/destructor
-    PlayerObject(Model *item,
-                 const btVector3 &initialPosition,
-                 const btQuaternion &initialRotation,
-                 Player *player);
+    PlayerObject(Model *item);
+
+    void createController(btVector3 initialPosition = btVector3(0.0f, 0.0f, 0.0f), btQuaternion initialRotation = btQuaternion(0,0,0,1));
 
     void ProcessKeyboard(Direction direction, float dt);
 
     void GetTransform(btScalar* transform) {
         btTransform trans = m_ghostObject->getWorldTransform();
-        trans.getOpenGLMatrix(transform);;
+        trans.getOpenGLMatrix(transform);
     }
 };
 

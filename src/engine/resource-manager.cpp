@@ -7,8 +7,6 @@
 // Instantiate static variables
 std::map<std::string, Model*>        ResourceManager::Models;
 std::map<std::string, Shader*>        ResourceManager::Shaders;
-std::map<std::string, PhysicObject*>   ResourceManager::PhysicObjects;
-
 
 Shader* ResourceManager::LoadShader(const char *vShaderFile, const char *fShaderFile, const char *gShaderFile, std::string name)
 {
@@ -93,17 +91,4 @@ Model* ResourceManager::loadModelFromFile(const char *file, bool alpha)
 
     return m;
 }
-
-PhysicObject* ResourceManager::FindPhysicObject(btRigidBody* pBody) {
-    // search through our list of PhysicObjects finding
-    // the one with a rigid body that matches the given one
-    for (auto iter : PhysicObjects) {
-        if (iter.second->GetRigidBody() == pBody) {
-            // found the body, so return the corresponding game object
-            return iter.second;
-        }
-    }
-    return 0;
-}
-
 

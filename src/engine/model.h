@@ -1,8 +1,14 @@
 #ifndef MODEL_H
 #define MODEL_H
 
-#include <glad/glad.h>
+#include <string>
+#include <fstream>
+#include <sstream>
+#include <iostream>
+#include <map>
+#include <vector>
 
+#include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <assimp/Importer.hpp>
@@ -11,13 +17,6 @@
 
 #include "mesh.h"
 #include "shader.h"
-
-#include <string>
-#include <fstream>
-#include <sstream>
-#include <iostream>
-#include <map>
-#include <vector>
 
 using namespace std;
 
@@ -36,7 +35,7 @@ public:
     Model(string const &path, bool gamma = false);
 
     // draws the model, and thus all its meshes
-    void Draw(Shader *shader);
+    void draw(Shader *shader);
 
     // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
     void loadModel(string const &path);

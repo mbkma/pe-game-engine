@@ -14,7 +14,7 @@ Mesh::Mesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture
 }
 
 // render the mesh
-void Mesh::Draw(Shader *shader)
+void Mesh::draw(Shader *shader)
 {
     // bind appropriate textures
     unsigned int diffuseNr  = 1;

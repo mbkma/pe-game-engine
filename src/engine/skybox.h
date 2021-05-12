@@ -11,9 +11,12 @@
 class Skybox
 {
 public:
-    Skybox();
+    Skybox(std::string path);
 
-    void Draw(Shader *shader, Camera *camera);
+    Camera *m_pCamera;
+    Shader *m_pSkyboxShader;
+
+    void draw();
 
 private:
     unsigned int loadCubemap(std::vector<std::string> faces);

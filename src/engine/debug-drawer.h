@@ -19,8 +19,8 @@ public:
 
     // drawing functions
     virtual void  drawContactPoint(const btVector3 &pointOnB, const btVector3 &normalOnB, btScalar distance, int lifeTime, const btVector3 &color) override;
-	virtual void drawLine(const btVector3& from, const btVector3& to, const btVector3& fromColor, const btVector3& toColor);
-	virtual void drawLine(const btVector3& from, const btVector3& to, const btVector3& color);
+    virtual void drawLine(const btVector3& from, const btVector3& to, const btVector3& fromColor, const btVector3& toColor);
+    virtual void drawLine(const btVector3& from, const btVector3& to, const btVector3& color);
 
     // unused
     virtual void  reportErrorWarning(const char* warningString) override {}
@@ -30,9 +30,9 @@ public:
 
     unsigned int VAO;
 
-	unsigned i = 0;
+    unsigned i = 0;
 
-    void Draw(Shader *shader,  Camera *camera);
+    void draw();
 
     struct Vertex {
         // position
@@ -41,9 +41,13 @@ public:
         glm::vec3 Color;
     };
 
+    Camera *m_pCamera;
+
     std::vector<Vertex> vertices;
 
 protected:
+    Shader *m_colorShader;
+
     // render data
     unsigned int VBO, EBO;
 

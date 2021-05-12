@@ -1,9 +1,12 @@
 #include "debug-drawer.h"
 
-
+#include "resource-manager.h"
 
 DebugDrawer::DebugDrawer()
 {
+    ResourceManager::LoadShader("../src/shaders/colors.vs", "../src/shaders/colors.fs", nullptr, "color");
+    m_colorShader = ResourceManager::GetShader("color");
+
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
 
@@ -19,19 +22,19 @@ DebugDrawer::DebugDrawer()
     glBindVertexArray(0);
 }
 
-void DebugDrawer::Draw(Shader *shader,  Camera *camera)
+void DebugDrawer::draw()
 {
-    shader->Use();
+    m_colorShader->Use();
 
     glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1600.0f / 900.0f, 0.1f, 100.0f);
-    shader->SetMatrix4("projection", projection);
+    m_colorShader->SetMatrix4("projection", projection);
 
     // view matrix
-    glm::mat4 view = camera->GetViewMatrix();
-    shader->SetMatrix4("view", view);
+    glm::mat4 view = m_pCamera->GetViewMatrix();
+    m_colorShader->SetMatrix4("view", view);
 
     glm::mat4 model = glm::mat4(1.0f);
-    shader->SetMatrix4("model", model);
+    m_colorShader->SetMatrix4("model", model);
 
     glBindVertexArray(VAO);
 

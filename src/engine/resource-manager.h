@@ -8,9 +8,6 @@
 
 #include "shader.h"
 #include "model.h"
-#include "physic-object.h"
-
-#include <btBulletDynamicsCommon.h>
 
 // A static singleton ResourceManager class that hosts several
 // functions to load Models and Shaders. Each loaded texture
@@ -21,7 +18,6 @@ class ResourceManager
 {
 public:
     // resource storage
-    static std::map<std::string, PhysicObject*>    PhysicObjects;
     static std::map<std::string, Shader*>         Shaders;
     static std::map<std::string, Model*>         Models;
 
@@ -39,8 +35,6 @@ public:
 
     // properly de-allocates all loaded resources
     static void      Clear();
-
-    static PhysicObject* FindPhysicObject(btRigidBody* pBody);
 
 private:
     // private constructor, that is we do not want any actual resource manager objects. Its members and functions should be publicly available (static).

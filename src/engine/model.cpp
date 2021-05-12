@@ -3,8 +3,6 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image/stb_image.h>
 
-#include "game.h"
-
 // For converting between ASSIMP and glm
 static inline glm::vec3 vec3_cast(const aiVector3D &v) { return glm::vec3(v.x, v.y, v.z); }
 static inline glm::vec2 vec2_cast(const aiVector3D &v) { return glm::vec2(v.x, v.y); } // it's aiVector3D because assimp's texture coordinates use that
@@ -19,15 +17,15 @@ Model::Model(string const &path, bool gamma) : gammaCorrection(gamma), m_NumBone
     loadModel(path);
 }
 
-void Model::Draw(Shader *shader)
+void Model::draw(Shader *shader)
 {
     for(unsigned int i = 0; i < meshes.size(); i++)
-        meshes[i].Draw(shader);
+        meshes[i].draw(shader);
 }
 
 void Model::loadModel(string const &path)
 {
-	m_importer = new Assimp::Importer(); // TODO delete
+    m_importer = new Assimp::Importer(); // TODO delete
 
     // read file via ASSIMP
     m_pScene = m_importer->ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals |  aiProcess_CalcTangentSpace); // | aiProcess_FlipUVs
