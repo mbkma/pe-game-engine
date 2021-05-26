@@ -1,0 +1,22 @@
+\hypertarget{md_README_autotoc_md1}{}\doxysection{General Information}\label{md_README_autotoc_md1}
+Pelota is an open source tennis simulation game, which uses the Open\+GL programming interface.
+
+{\bfseries{Pelota currently is in early development and is not in a playable state yet.}}\hypertarget{md_README_autotoc_md2}{}\doxysection{Dependencies}\label{md_README_autotoc_md2}
+On Ubuntu/\+Debian systems\+:
+
+{\ttfamily sudo apt install libglfw3-\/dev libglm-\/dev libassimp-\/dev libfreetype6-\/dev libbullet-\/dev libsfml-\/dev}
+
+On Arch systems\+:
+
+{\ttfamily sudo pacman -\/S glfw-\/x11 glm assimp freetype2 bullet sfml}\hypertarget{md_README_autotoc_md3}{}\doxysection{Build}\label{md_README_autotoc_md3}
+Simple build procedure\+:
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\$ meson build                        \# Build configuration}
+\DoxyCodeLine{\$ cd build}
+\DoxyCodeLine{\$ ninja                              \# Build project}
+
+\end{DoxyCode}
+\hypertarget{md_README_autotoc_md4}{}\doxysection{Acknowledgments}\label{md_README_autotoc_md4}
+Thanks to Joey de Vries for his great Open\+Gl tutorial at \href{https://learnopengl.com/}{\texttt{ https\+://learnopengl.\+com/}}. Pelota is based on the code snippets from his tutorial. 
