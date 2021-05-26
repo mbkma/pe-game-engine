@@ -1,0 +1,73 @@
+\hypertarget{classPhysics}{}\doxysection{Physics Class Reference}
+\label{classPhysics}\index{Physics@{Physics}}
+\doxysubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structPhysics_1_1RayResult}{Ray\+Result}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classPhysics_a3518e36f58ed55e5851909aca24b6716}\label{classPhysics_a3518e36f58ed55e5851909aca24b6716}} 
+typedef std\+::pair$<$ const bt\+Rigid\+Body $\ast$, const bt\+Rigid\+Body $\ast$ $>$ {\bfseries Collision\+Pair}
+\item 
+\mbox{\Hypertarget{classPhysics_ac640a1224338ac812c7a79901559ef22}\label{classPhysics_ac640a1224338ac812c7a79901559ef22}} 
+typedef std\+::set$<$ Collision\+Pair $>$ {\bfseries Collision\+Pairs}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classPhysics_a92bd884ad35a8fa23f0a0f8cbeb082ae}\label{classPhysics_a92bd884ad35a8fa23f0a0f8cbeb082ae}} 
+{\bfseries Physics} (\mbox{\hyperlink{classCamera}{Camera}} $\ast$camera)
+\item 
+\mbox{\Hypertarget{classPhysics_a02e20920c76c862737fff31fd4cdaabb}\label{classPhysics_a02e20920c76c862737fff31fd4cdaabb}} 
+void {\bfseries Check\+For\+Collision\+Events} ()
+\item 
+\mbox{\Hypertarget{classPhysics_a22ab5276b890059935512dd3f00d558c}\label{classPhysics_a22ab5276b890059935512dd3f00d558c}} 
+void {\bfseries Collision\+Event} (bt\+Rigid\+Body $\ast$p\+Body0, bt\+Rigid\+Body $\ast$p\+Body1)
+\item 
+\mbox{\Hypertarget{classPhysics_a5208a9a6c62925210173253fb345c28c}\label{classPhysics_a5208a9a6c62925210173253fb345c28c}} 
+void {\bfseries Separation\+Event} (bt\+Rigid\+Body $\ast$p\+Body0, bt\+Rigid\+Body $\ast$p\+Body1)
+\item 
+\mbox{\Hypertarget{classPhysics_a9e686120a6a0ed4610cbb939288e0df4}\label{classPhysics_a9e686120a6a0ed4610cbb939288e0df4}} 
+bool {\bfseries Raycast} (const bt\+Vector3 \&start\+Position, const bt\+Vector3 \&direction, bt\+Rigid\+Body $\ast$p\+Body)
+\item 
+\mbox{\Hypertarget{classPhysics_a67c2f4ce12e05ba0391921ce54e15096}\label{classPhysics_a67c2f4ce12e05ba0391921ce54e15096}} 
+bt\+Vector3 {\bfseries Get\+Picking\+Ray} (int x, int y)
+\item 
+\mbox{\Hypertarget{classPhysics_abdd448daafdba29cc9e14d98377af864}\label{classPhysics_abdd448daafdba29cc9e14d98377af864}} 
+void {\bfseries Shoot} (const bt\+Vector3 \&direction, bt\+Rigid\+Body $\ast$body)
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classPhysics_af9c1024231676bc0d06931c58be1123e}\label{classPhysics_af9c1024231676bc0d06931c58be1123e}} 
+\mbox{\hyperlink{classCamera}{Camera}} $\ast$ {\bfseries m\+\_\+p\+Camera}
+\item 
+\mbox{\Hypertarget{classPhysics_ad0148a3eda91c06ae4ebafd0c7451e9c}\label{classPhysics_ad0148a3eda91c06ae4ebafd0c7451e9c}} 
+bt\+Broadphase\+Interface $\ast$ {\bfseries m\+\_\+p\+Broadphase}
+\item 
+\mbox{\Hypertarget{classPhysics_a347eb1ace039e263784ec907f8240254}\label{classPhysics_a347eb1ace039e263784ec907f8240254}} 
+bt\+Collision\+Configuration $\ast$ {\bfseries m\+\_\+p\+Collision\+Configuration}
+\item 
+\mbox{\Hypertarget{classPhysics_a3eb0db96735374c83eb2b2b8c27f3401}\label{classPhysics_a3eb0db96735374c83eb2b2b8c27f3401}} 
+bt\+Collision\+Dispatcher $\ast$ {\bfseries m\+\_\+p\+Dispatcher}
+\item 
+\mbox{\Hypertarget{classPhysics_ac1b567cf320b607089575771d54c5682}\label{classPhysics_ac1b567cf320b607089575771d54c5682}} 
+bt\+Constraint\+Solver $\ast$ {\bfseries m\+\_\+p\+Solver}
+\item 
+\mbox{\Hypertarget{classPhysics_aaab8c7d5483817d1d700765eccb0b806}\label{classPhysics_aaab8c7d5483817d1d700765eccb0b806}} 
+bt\+Dynamics\+World $\ast$ {\bfseries m\+\_\+p\+World}
+\item 
+\mbox{\Hypertarget{classPhysics_a393b1ffa7341954260a605f393eb9323}\label{classPhysics_a393b1ffa7341954260a605f393eb9323}} 
+Collision\+Pairs {\bfseries m\+\_\+pairs\+Last\+Update}
+\item 
+\mbox{\Hypertarget{classPhysics_a2bd361c16ed82f2edb60c60d07ed7d59}\label{classPhysics_a2bd361c16ed82f2edb60c60d07ed7d59}} 
+bt\+Rigid\+Body $\ast$ {\bfseries p\+Body}
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+src/engine/physics.\+h\item 
+src/engine/physics.\+cpp\end{DoxyCompactItemize}

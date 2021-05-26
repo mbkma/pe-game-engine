@@ -1,0 +1,46 @@
+\hypertarget{classPlayerObject}{}\doxysection{Player\+Object Class Reference}
+\label{classPlayerObject}\index{PlayerObject@{PlayerObject}}
+Inheritance diagram for Player\+Object\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classPlayerObject}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classPlayerObject_acde618257958f2e4560de73bb3a3c064}\label{classPlayerObject_acde618257958f2e4560de73bb3a3c064}} 
+{\bfseries Player\+Object} (\mbox{\hyperlink{classModel}{Model}} $\ast$item, const bt\+Vector3 \&initial\+Position, const bt\+Quaternion \&initial\+Rotation, \mbox{\hyperlink{classPlayer}{Player}} $\ast$player)
+\item 
+void \mbox{\hyperlink{classPlayerObject_ac617e87572fba22ace2d24beea4272c5}{Process\+Keyboard}} (Direction direction, float dt)
+\item 
+\mbox{\Hypertarget{classPlayerObject_a7fd97cbdbdc8cf9b4f721c1d3d673600}\label{classPlayerObject_a7fd97cbdbdc8cf9b4f721c1d3d673600}} 
+void {\bfseries Get\+Transform} (bt\+Scalar $\ast$transform)
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classPlayerObject_a80ea95ab45b9fe0365186710fddbc8a0}\label{classPlayerObject_a80ea95ab45b9fe0365186710fddbc8a0}} 
+\mbox{\hyperlink{classPlayer}{Player}} $\ast$ {\bfseries m\+\_\+\+Player}
+\item 
+\mbox{\Hypertarget{classPlayerObject_af62749fb5e663247fca695f9685885f1}\label{classPlayerObject_af62749fb5e663247fca695f9685885f1}} 
+bt\+Kinematic\+Character\+Controller $\ast$ {\bfseries m\+\_\+character}
+\item 
+\mbox{\Hypertarget{classPlayerObject_ae2516c32c7bcaed6cae2200539b15123}\label{classPlayerObject_ae2516c32c7bcaed6cae2200539b15123}} 
+class bt\+Pair\+Caching\+Ghost\+Object $\ast$ {\bfseries m\+\_\+ghost\+Object}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classPlayerObject_ac617e87572fba22ace2d24beea4272c5}\label{classPlayerObject_ac617e87572fba22ace2d24beea4272c5}} 
+\index{PlayerObject@{PlayerObject}!ProcessKeyboard@{ProcessKeyboard}}
+\index{ProcessKeyboard@{ProcessKeyboard}!PlayerObject@{PlayerObject}}
+\doxysubsubsection{\texorpdfstring{ProcessKeyboard()}{ProcessKeyboard()}}
+{\footnotesize\ttfamily void Player\+Object\+::\+Process\+Keyboard (\begin{DoxyParamCaption}\item[{Direction}]{direction,  }\item[{float}]{dt }\end{DoxyParamCaption})}
+
+set walk\+Direction for our character
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+src/engine/player-\/object.\+h\item 
+src/engine/player-\/object.\+cpp\end{DoxyCompactItemize}

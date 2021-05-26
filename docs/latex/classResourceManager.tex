@@ -1,0 +1,41 @@
+\hypertarget{classResourceManager}{}\doxysection{Resource\+Manager Class Reference}
+\label{classResourceManager}\index{ResourceManager@{ResourceManager}}
+\doxysubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classResourceManager_a241bb97b7dfaf9939fd644ac9fbdd5b4}\label{classResourceManager_a241bb97b7dfaf9939fd644ac9fbdd5b4}} 
+static \mbox{\hyperlink{classShader}{Shader}} $\ast$ {\bfseries Load\+Shader} (const char $\ast$v\+Shader\+File, const char $\ast$f\+Shader\+File, const char $\ast$g\+Shader\+File, std\+::string name)
+\item 
+\mbox{\Hypertarget{classResourceManager_ae95ecdc6de1127616485f7d069437332}\label{classResourceManager_ae95ecdc6de1127616485f7d069437332}} 
+static \mbox{\hyperlink{classShader}{Shader}} $\ast$ {\bfseries Get\+Shader} (std\+::string name)
+\item 
+\mbox{\Hypertarget{classResourceManager_a87a158f9eec9997dc5adb4fe3d3608a1}\label{classResourceManager_a87a158f9eec9997dc5adb4fe3d3608a1}} 
+static \mbox{\hyperlink{classModel}{Model}} $\ast$ {\bfseries Load\+Model} (const char $\ast$file, bool alpha, std\+::string name)
+\item 
+\mbox{\Hypertarget{classResourceManager_a567335dd5a37ca9ad935c22e92501203}\label{classResourceManager_a567335dd5a37ca9ad935c22e92501203}} 
+static \mbox{\hyperlink{classModel}{Model}} $\ast$ {\bfseries Get\+Model} (std\+::string name)
+\item 
+\mbox{\Hypertarget{classResourceManager_aecd08b92634fad3316442c267a04e8c4}\label{classResourceManager_aecd08b92634fad3316442c267a04e8c4}} 
+static void {\bfseries Clear} ()
+\item 
+\mbox{\Hypertarget{classResourceManager_a55f50461d7c7c580820f2e9790703934}\label{classResourceManager_a55f50461d7c7c580820f2e9790703934}} 
+static \mbox{\hyperlink{classPhysicObject}{Physic\+Object}} $\ast$ {\bfseries Find\+Physic\+Object} (bt\+Rigid\+Body $\ast$p\+Body)
+\end{DoxyCompactItemize}
+\doxysubsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classResourceManager_af069b235857a408e930d38625869ac1c}\label{classResourceManager_af069b235857a408e930d38625869ac1c}} 
+static std\+::map$<$ std\+::string, \mbox{\hyperlink{classPhysicObject}{Physic\+Object}} $\ast$ $>$ {\bfseries Physic\+Objects}
+\item 
+\mbox{\Hypertarget{classResourceManager_a162a5f89e9ec47ed31692bb1ce76290a}\label{classResourceManager_a162a5f89e9ec47ed31692bb1ce76290a}} 
+static std\+::map$<$ std\+::string, \mbox{\hyperlink{classShader}{Shader}} $\ast$ $>$ {\bfseries Shaders}
+\item 
+\mbox{\Hypertarget{classResourceManager_a0b067e79653836324294d701d5603703}\label{classResourceManager_a0b067e79653836324294d701d5603703}} 
+static std\+::map$<$ std\+::string, \mbox{\hyperlink{classModel}{Model}} $\ast$ $>$ {\bfseries Models}
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+src/engine/resource-\/manager.\+h\item 
+src/engine/resource-\/manager.\+cpp\end{DoxyCompactItemize}

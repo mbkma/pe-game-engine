@@ -1,0 +1,79 @@
+\hypertarget{classDebugDrawer}{}\doxysection{Debug\+Drawer Class Reference}
+\label{classDebugDrawer}\index{DebugDrawer@{DebugDrawer}}
+Inheritance diagram for Debug\+Drawer\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classDebugDrawer}
+\end{center}
+\end{figure}
+\doxysubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structDebugDrawer_1_1Vertex}{Vertex}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classDebugDrawer_aa20ffa651469bfeba41b98b432407f4c}\label{classDebugDrawer_aa20ffa651469bfeba41b98b432407f4c}} 
+virtual void {\bfseries set\+Debug\+Mode} (int debug\+Mode) override
+\item 
+\mbox{\Hypertarget{classDebugDrawer_a0eb725e2d12ece554a0ccbe133440d54}\label{classDebugDrawer_a0eb725e2d12ece554a0ccbe133440d54}} 
+virtual int {\bfseries get\+Debug\+Mode} () const override
+\item 
+\mbox{\Hypertarget{classDebugDrawer_ad9f4690a3a54d61d07d6601b6805fa64}\label{classDebugDrawer_ad9f4690a3a54d61d07d6601b6805fa64}} 
+virtual void {\bfseries draw\+Contact\+Point} (const bt\+Vector3 \&point\+OnB, const bt\+Vector3 \&normal\+OnB, bt\+Scalar distance, int life\+Time, const bt\+Vector3 \&color) override
+\item 
+\mbox{\Hypertarget{classDebugDrawer_a22deb32ee7a97666c007a1df45029815}\label{classDebugDrawer_a22deb32ee7a97666c007a1df45029815}} 
+virtual void {\bfseries draw\+Line} (const bt\+Vector3 \&from, const bt\+Vector3 \&to, const bt\+Vector3 \&from\+Color, const bt\+Vector3 \&to\+Color)
+\item 
+\mbox{\Hypertarget{classDebugDrawer_a6c794618022a91750d4d24840f744ae1}\label{classDebugDrawer_a6c794618022a91750d4d24840f744ae1}} 
+virtual void {\bfseries draw\+Line} (const bt\+Vector3 \&from, const bt\+Vector3 \&to, const bt\+Vector3 \&color)
+\item 
+\mbox{\Hypertarget{classDebugDrawer_abc49c1d58443f9530ca49e35a4fb38c3}\label{classDebugDrawer_abc49c1d58443f9530ca49e35a4fb38c3}} 
+virtual void {\bfseries report\+Error\+Warning} (const char $\ast$warning\+String) override
+\item 
+\mbox{\Hypertarget{classDebugDrawer_a506fb0ad67a60a961f42b9ef8d0fc312}\label{classDebugDrawer_a506fb0ad67a60a961f42b9ef8d0fc312}} 
+virtual void {\bfseries draw3d\+Text} (const bt\+Vector3 \&location, const char $\ast$text\+String) override
+\item 
+\mbox{\Hypertarget{classDebugDrawer_af21864189361828d512a78e6007ce35b}\label{classDebugDrawer_af21864189361828d512a78e6007ce35b}} 
+void {\bfseries Toggle\+Debug\+Flag} (int flag)
+\item 
+\mbox{\Hypertarget{classDebugDrawer_a1fef516a827b379ed53d14e9547f9398}\label{classDebugDrawer_a1fef516a827b379ed53d14e9547f9398}} 
+void {\bfseries Draw} (\mbox{\hyperlink{classShader}{Shader}} $\ast$shader, \mbox{\hyperlink{classCamera}{Camera}} $\ast$camera)
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classDebugDrawer_a044f24297c88aab9a5ce32917ddf9403}\label{classDebugDrawer_a044f24297c88aab9a5ce32917ddf9403}} 
+unsigned int {\bfseries VAO}
+\item 
+\mbox{\Hypertarget{classDebugDrawer_ae867bcbf6f26d2895d2fb2f0dcc2902f}\label{classDebugDrawer_ae867bcbf6f26d2895d2fb2f0dcc2902f}} 
+unsigned {\bfseries i} = 0
+\item 
+\mbox{\Hypertarget{classDebugDrawer_a61bbcf41f198a7aecec7f7eed9424b6f}\label{classDebugDrawer_a61bbcf41f198a7aecec7f7eed9424b6f}} 
+std\+::vector$<$ \mbox{\hyperlink{structDebugDrawer_1_1Vertex}{Vertex}} $>$ {\bfseries vertices}
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classDebugDrawer_aa3ecb1100649a529a8fee1b6a2da7566}\label{classDebugDrawer_aa3ecb1100649a529a8fee1b6a2da7566}} 
+void {\bfseries insert} (float x, float y, float z, float cx, float cy, float cz)
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classDebugDrawer_a486f2eaea6e10d65b03bb3dbd92e18ef}\label{classDebugDrawer_a486f2eaea6e10d65b03bb3dbd92e18ef}} 
+unsigned int {\bfseries VBO}
+\item 
+\mbox{\Hypertarget{classDebugDrawer_a2eb09bb34ad195474c10832ff8b8b889}\label{classDebugDrawer_a2eb09bb34ad195474c10832ff8b8b889}} 
+unsigned int {\bfseries EBO}
+\item 
+\mbox{\Hypertarget{classDebugDrawer_a9c08e3a43b9cb9e7bfcc9086bfac1e6c}\label{classDebugDrawer_a9c08e3a43b9cb9e7bfcc9086bfac1e6c}} 
+int {\bfseries m\+\_\+debug\+Mode}
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+src/engine/debug-\/drawer.\+h\item 
+src/engine/debug-\/drawer.\+cpp\end{DoxyCompactItemize}

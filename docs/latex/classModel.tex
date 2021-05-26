@@ -1,0 +1,100 @@
+\hypertarget{classModel}{}\doxysection{Model Class Reference}
+\label{classModel}\index{Model@{Model}}
+\doxysubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structModel_1_1BoneInfo}{Bone\+Info}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classModel_aa236145f5d1132ce2949b0ceca540ef2}\label{classModel_aa236145f5d1132ce2949b0ceca540ef2}} 
+{\bfseries Model} (string const \&path, bool gamma=false)
+\item 
+\mbox{\Hypertarget{classModel_a8444e404fcc9cc66827c2f628b92ece3}\label{classModel_a8444e404fcc9cc66827c2f628b92ece3}} 
+void {\bfseries Draw} (\mbox{\hyperlink{classShader}{Shader}} $\ast$shader)
+\item 
+\mbox{\Hypertarget{classModel_a1033e3ef04119cd665593b9bf1679850}\label{classModel_a1033e3ef04119cd665593b9bf1679850}} 
+void {\bfseries load\+Model} (string const \&path)
+\item 
+\mbox{\Hypertarget{classModel_a560a843afee67b4eb6db93f4905d27bf}\label{classModel_a560a843afee67b4eb6db93f4905d27bf}} 
+void {\bfseries Calc\+Interpolated\+Scaling} (ai\+Vector3D \&Out, float Animation\+Time, const ai\+Node\+Anim $\ast$p\+Node\+Anim)
+\item 
+\mbox{\Hypertarget{classModel_acf866d2345441935dbcee36114f6f8c3}\label{classModel_acf866d2345441935dbcee36114f6f8c3}} 
+void {\bfseries Calc\+Interpolated\+Rotation} (ai\+Quaternion \&Out, float Animation\+Time, const ai\+Node\+Anim $\ast$p\+Node\+Anim)
+\item 
+\mbox{\Hypertarget{classModel_aa8e464ae05d8e6dc2c2770a3c39c3ace}\label{classModel_aa8e464ae05d8e6dc2c2770a3c39c3ace}} 
+void {\bfseries Calc\+Interpolated\+Position} (ai\+Vector3D \&Out, float Animation\+Time, const ai\+Node\+Anim $\ast$p\+Node\+Anim)
+\item 
+\mbox{\Hypertarget{classModel_a4c2ee990557864fbdd3b2c181da7ca1f}\label{classModel_a4c2ee990557864fbdd3b2c181da7ca1f}} 
+unsigned int {\bfseries Find\+Scaling} (float Animation\+Time, const ai\+Node\+Anim $\ast$p\+Node\+Anim)
+\item 
+\mbox{\Hypertarget{classModel_af462bd7afe39ad621b1f7cd84f8ab0e3}\label{classModel_af462bd7afe39ad621b1f7cd84f8ab0e3}} 
+unsigned int {\bfseries Find\+Rotation} (float Animation\+Time, const ai\+Node\+Anim $\ast$p\+Node\+Anim)
+\item 
+\mbox{\Hypertarget{classModel_a4c33ebb7d5f3cdb7649cf738febe5b96}\label{classModel_a4c33ebb7d5f3cdb7649cf738febe5b96}} 
+unsigned int {\bfseries Find\+Position} (float Animation\+Time, const ai\+Node\+Anim $\ast$p\+Node\+Anim)
+\item 
+\mbox{\Hypertarget{classModel_a12339d539354f1e573c4d9885ebafd6f}\label{classModel_a12339d539354f1e573c4d9885ebafd6f}} 
+const ai\+Node\+Anim $\ast$ {\bfseries Find\+Node\+Anim} (const ai\+Animation $\ast$p\+Animation, const std\+::string Node\+Name)
+\item 
+\mbox{\Hypertarget{classModel_a1146d3ed427e5a56a6c8056fa4bf68e6}\label{classModel_a1146d3ed427e5a56a6c8056fa4bf68e6}} 
+void {\bfseries Read\+Node\+Heirarchy} (float Animation\+Time, const ai\+Node $\ast$p\+Node, const glm\+::mat4 \&Parent\+Transform)
+\item 
+\mbox{\Hypertarget{classModel_aeba388275b73f16f46228a70dca4f928}\label{classModel_aeba388275b73f16f46228a70dca4f928}} 
+unsigned int {\bfseries num\+Bones} () const
+\item 
+\mbox{\Hypertarget{classModel_a957fdcda6c4218e6c7fa08a4b09d9d6f}\label{classModel_a957fdcda6c4218e6c7fa08a4b09d9d6f}} 
+void {\bfseries bone\+Transform} (float time\+In\+Seconds, std\+::vector$<$ glm\+::mat4 $>$ \&Transforms)
+\item 
+\mbox{\Hypertarget{classModel_a20a18145403b46ad13df05d6c6308660}\label{classModel_a20a18145403b46ad13df05d6c6308660}} 
+void {\bfseries set\+Bone\+Transformations} (GLuint shader\+Program, GLfloat current\+Time)
+\item 
+\mbox{\Hypertarget{classModel_aedd1825dcd0c78cacc1b8136eb1e2d70}\label{classModel_aedd1825dcd0c78cacc1b8136eb1e2d70}} 
+unsigned int {\bfseries get\+Num\+Animations} ()
+\item 
+\mbox{\Hypertarget{classModel_ad2dc64cc6b214750adfca75b80128b87}\label{classModel_ad2dc64cc6b214750adfca75b80128b87}} 
+void {\bfseries set\+Animation} (unsigned int a)
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classModel_aa0d87cb976812a96da160a85d7a610e8}\label{classModel_aa0d87cb976812a96da160a85d7a610e8}} 
+vector$<$ \mbox{\hyperlink{structTexture}{Texture}} $>$ {\bfseries textures\+\_\+loaded}
+\item 
+\mbox{\Hypertarget{classModel_a8ff9e88cc08d20ac95168a6a61458d98}\label{classModel_a8ff9e88cc08d20ac95168a6a61458d98}} 
+vector$<$ \mbox{\hyperlink{classMesh}{Mesh}} $>$ {\bfseries meshes}
+\item 
+\mbox{\Hypertarget{classModel_a5d77b67392e10756ca9c5075b2abedea}\label{classModel_a5d77b67392e10756ca9c5075b2abedea}} 
+string {\bfseries directory}
+\item 
+\mbox{\Hypertarget{classModel_ad77d358db2ff46758774b8a621f60db3}\label{classModel_ad77d358db2ff46758774b8a621f60db3}} 
+bool {\bfseries gamma\+Correction}
+\item 
+\mbox{\Hypertarget{classModel_a479cf97bb6467a5fe39712551a83529f}\label{classModel_a479cf97bb6467a5fe39712551a83529f}} 
+Assimp\+::\+Importer $\ast$ {\bfseries m\+\_\+importer}
+\item 
+\mbox{\Hypertarget{classModel_a9ccd039e3adeec574d0a89a236eaf181}\label{classModel_a9ccd039e3adeec574d0a89a236eaf181}} 
+const ai\+Scene $\ast$ {\bfseries m\+\_\+p\+Scene}
+\item 
+\mbox{\Hypertarget{classModel_ad1d8407feda2082e19347f1d9f11db86}\label{classModel_ad1d8407feda2082e19347f1d9f11db86}} 
+std\+::map$<$ std\+::string, unsigned int $>$ {\bfseries m\+\_\+\+Bone\+Mapping}
+\item 
+\mbox{\Hypertarget{classModel_a4bc44df2bf9364ddce88fabcd0fa672c}\label{classModel_a4bc44df2bf9364ddce88fabcd0fa672c}} 
+unsigned int {\bfseries m\+\_\+\+Num\+Bones}
+\item 
+\mbox{\Hypertarget{classModel_a60f67414e9036f0429fe30ea4d927380}\label{classModel_a60f67414e9036f0429fe30ea4d927380}} 
+std\+::vector$<$ \mbox{\hyperlink{structModel_1_1BoneInfo}{Bone\+Info}} $>$ {\bfseries m\+\_\+\+Bone\+Info}
+\item 
+\mbox{\Hypertarget{classModel_afa6a8c4bc9aaf7ad5ec26fc21aebda69}\label{classModel_afa6a8c4bc9aaf7ad5ec26fc21aebda69}} 
+double {\bfseries anim\+Duration}
+\item 
+\mbox{\Hypertarget{classModel_ac0ebf7d6cd652c6a5836830c14ed979c}\label{classModel_ac0ebf7d6cd652c6a5836830c14ed979c}} 
+unsigned int {\bfseries current\+Animation}
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+src/engine/model.\+h\item 
+src/engine/model.\+cpp\end{DoxyCompactItemize}
