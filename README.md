@@ -1,10 +1,10 @@
-# Pelota - Tennis Simulation Game
+# PE-Game-Engine
 
 ## General Information
 
-Pelota is an open source tennis simulation game, which uses the OpenGL programming interface.
+PE-Game-Engine is an open source game engine, which uses the [OpenGL programming interface](https://www.opengl.org/) und the [Bullet physics engine](https://pybullet.org/wordpress/). PE-Game-Engine was originally developed for the [Pelota tennis simulation game](https://github.com/mbkma/pelota-godot). Pelota was ported to the [Godot game engine](https://godotengine.org/).
 
-**Pelota currently is in early development and is not in a playable state yet.**
+**PE-Game-Engine currently is in early development**
 
 ## Dependencies
 
@@ -28,4 +28,4 @@ $ ninja                              # Build project
 
 ## Acknowledgments
 
-Thanks to Joey de Vries for his great OpenGl tutorial at [https://learnopengl.com/](https://learnopengl.com/). Pelota is based on the code snippets from his tutorial.
+Thanks to Joey de Vries for his great OpenGl tutorial at [https://learnopengl.com/](https://learnopengl.com/). PE-Game-Engine is based on the code snippets from his tutorial.
