@@ -17,7 +17,7 @@
   - [ ] Displaying animations.
 
 
-**PE-Game-Engine currently is in early development**
+**PE-Game-Engine currently is in early development!**
 
 ## Dependencies
 
